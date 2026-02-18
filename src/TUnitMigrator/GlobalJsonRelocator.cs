@@ -1,5 +1,7 @@
 static class GlobalJsonRelocator
 {
+    static readonly JsonSerializerOptions jsonOptions = new() { WriteIndented = true };
+
     public static async Task Relocate(string projectRoot)
     {
         var globalJsonFiles = FileSystem.EnumerateFiles(projectRoot, "global.json").ToList();
@@ -19,16 +21,16 @@ static class GlobalJsonRelocator
         var globalJsonPath = globalJsonFiles[0];
         var rootGlobalJson = Path.Combine(projectRoot, "global.json");
 
-        if (!string.Equals(Path.GetFullPath(globalJsonPath), Path.GetFullPath(rootGlobalJson), StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(Path.GetFullPath(globalJsonPath), Path.GetFullPath(rootGlobalJson), StringComparison.OrdinalIgnoreCase))
+        {
+            Log.Information("global.json already at root of {Directory}", projectRoot);
+        }
+        else
         {
             var content = await File.ReadAllTextAsync(globalJsonPath);
             await File.WriteAllTextAsync(rootGlobalJson, content);
             File.Delete(globalJsonPath);
             Log.Information("Relocated global.json from {Source} to {Destination}", globalJsonPath, rootGlobalJson);
-        }
-        else
-        {
-            Log.Information("global.json already at root of {Directory}", projectRoot);
         }
 
         await EnsureTestRunner(rootGlobalJson);
@@ -64,11 +66,7 @@ static class GlobalJsonRelocator
             };
         }
 
-        var options = new JsonSerializerOptions
-        {
-            WriteIndented = true
-        };
-        var newContent = root.ToJsonString(options);
+        var newContent = root.ToJsonString(jsonOptions);
 
         // Preserve trailing newline if original had one
         var newLine = content.Contains("\r\n") ? "\r\n" : "\n";
