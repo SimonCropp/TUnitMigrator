@@ -9,7 +9,10 @@ public class ExtensionPackageResolverTests
     public static void Setup()
     {
         sources = PackageSourceReader.Read(Environment.CurrentDirectory);
-        cache = new SourceCacheContext { RefreshMemoryCache = true };
+        cache = new()
+        {
+            RefreshMemoryCache = true
+        };
     }
 
     [After(Class)]

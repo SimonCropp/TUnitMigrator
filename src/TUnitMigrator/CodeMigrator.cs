@@ -26,9 +26,9 @@ static class CodeMigrator
 
         Log.Information("Running dotnet format analyzers with {DiagnosticId} on {Solution}", diagnosticId, solutionFile);
 
-        var process = new Process
+        using var process = new Process
         {
-            StartInfo = new ProcessStartInfo
+            StartInfo = new()
             {
                 FileName = "dotnet",
                 Arguments = $"format analyzers \"{solutionFile}\" --severity info --diagnostics {diagnosticId}",

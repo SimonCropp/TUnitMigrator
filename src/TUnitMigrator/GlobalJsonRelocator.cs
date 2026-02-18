@@ -31,6 +31,8 @@ static class GlobalJsonRelocator
             await File.WriteAllTextAsync(rootGlobalJson, content);
             File.Delete(globalJsonPath);
             Log.Information("Relocated global.json from {Source} to {Destination}", globalJsonPath, rootGlobalJson);
+
+            await FixYmlReferences(projectRoot, globalJsonPath);
         }
 
         await EnsureTestRunner(rootGlobalJson);
@@ -39,7 +41,12 @@ static class GlobalJsonRelocator
     static async Task EnsureTestRunner(string globalJsonPath)
     {
         var content = await File.ReadAllTextAsync(globalJsonPath);
-        var json = JsonNode.Parse(content, documentOptions: new JsonDocumentOptions { CommentHandling = JsonCommentHandling.Skip });
+        var json = JsonNode.Parse(
+            content,
+            documentOptions: new()
+            {
+                CommentHandling = JsonCommentHandling.Skip
+            });
 
         if (json is not JsonObject root)
         {
@@ -77,5 +84,25 @@ static class GlobalJsonRelocator
 
         await File.WriteAllTextAsync(globalJsonPath, newContent);
         Log.Information("Added test runner 'Microsoft.Testing.Platform' to global.json");
+    }
+
+    static async Task FixYmlReferences(string projectRoot, string oldGlobalJsonPath)
+    {
+        var oldRelative = Path.GetRelativePath(projectRoot, oldGlobalJsonPath)
+            .Replace('\\', '/');
+
+        foreach (var ymlPath in FileSystem.EnumerateFiles(projectRoot, "*.yml"))
+        {
+            var content = await File.ReadAllTextAsync(ymlPath);
+            var newContent = content.Replace(oldRelative, "global.json");
+
+            if (content == newContent)
+            {
+                continue;
+            }
+
+            await File.WriteAllTextAsync(ymlPath, newContent);
+            Log.Information("Updated global.json reference in {File}: {Old} -> global.json", ymlPath, oldRelative);
+        }
     }
 }

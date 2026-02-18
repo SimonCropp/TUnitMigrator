@@ -228,4 +228,64 @@ public class GlobalJsonRelocatorTests
 
         await Assert.That(File.GetLastWriteTimeUtc(path)).IsEqualTo(lastWrite);
     }
+
+    [Test]
+    public async Task FixesYmlReferencesWhenRelocated()
+    {
+        using var tempDir = new TempDirectory();
+        var subDir = Path.Combine(tempDir, "src");
+        Directory.CreateDirectory(subDir);
+        await File.WriteAllTextAsync(Path.Combine(subDir, "global.json"), """{ "sdk": { "version": "10.0.103" } }""");
+        await File.WriteAllTextAsync(Path.Combine(tempDir, "appveyor.yml"),
+            """
+            install:
+              - appveyor DownloadFile https://example.com -FileName src/global.json
+            build_script:
+              - dotnet build src
+            """);
+
+        await GlobalJsonRelocator.Relocate(tempDir);
+
+        var ymlContent = await File.ReadAllTextAsync(Path.Combine(tempDir, "appveyor.yml"));
+        await Assert.That(ymlContent).Contains("global.json");
+        await Assert.That(ymlContent).DoesNotContain("src/global.json");
+    }
+
+    [Test]
+    public async Task FixesDeeplyNestedYmlReferences()
+    {
+        using var tempDir = new TempDirectory();
+        var deepDir = Path.Combine(tempDir, "nested1", "nested2");
+        Directory.CreateDirectory(deepDir);
+        await File.WriteAllTextAsync(Path.Combine(deepDir, "global.json"), """{ "sdk": { "version": "10.0.103" } }""");
+        await File.WriteAllTextAsync(Path.Combine(tempDir, "ci.yml"),
+            """
+            steps:
+              - run: cp nested1/nested2/global.json .
+            """);
+
+        await GlobalJsonRelocator.Relocate(tempDir);
+
+        var ymlContent = await File.ReadAllTextAsync(Path.Combine(tempDir, "ci.yml"));
+        await Assert.That(ymlContent).DoesNotContain("nested1/nested2/global.json");
+        await Assert.That(ymlContent).Contains("global.json");
+    }
+
+    [Test]
+    public async Task DoesNotModifyYmlWhenGlobalJsonAlreadyAtRoot()
+    {
+        using var tempDir = new TempDirectory();
+        await File.WriteAllTextAsync(Path.Combine(tempDir, "global.json"), """{ "sdk": { "version": "10.0.103" } }""");
+        var ymlContent = """
+            steps:
+              - run: cp global.json backup/
+            """;
+        await File.WriteAllTextAsync(Path.Combine(tempDir, "ci.yml"), ymlContent);
+        var lastWrite = File.GetLastWriteTimeUtc(Path.Combine(tempDir, "ci.yml"));
+
+        await Task.Delay(50);
+        await GlobalJsonRelocator.Relocate(tempDir);
+
+        await Assert.That(File.GetLastWriteTimeUtc(Path.Combine(tempDir, "ci.yml"))).IsEqualTo(lastWrite);
+    }
 }

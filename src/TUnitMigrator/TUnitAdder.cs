@@ -1,6 +1,6 @@
 static class TUnitAdder
 {
-    public static async Task AddToProps(string propsPath, NuGetVersion tunitVersion)
+    public static Task AddToProps(string propsPath, NuGetVersion tunitVersion)
     {
         var (newLine, hasTrailingNewline) = XmlHelper.DetectNewLineInfo(propsPath);
         var xml = XDocument.Load(propsPath);
@@ -10,13 +10,13 @@ static class TUnitAdder
 
         if (existingTUnit != null)
         {
-            return;
+            return Task.CompletedTask;
         }
 
         var itemGroup = xml.Descendants("ItemGroup").FirstOrDefault();
         if (itemGroup == null)
         {
-            return;
+            return Task.CompletedTask;
         }
 
         itemGroup.Add(new XElement(
@@ -25,7 +25,7 @@ static class TUnitAdder
             new XAttribute("Version", tunitVersion.ToString())));
         Log.Information("Added TUnit {Version} to Directory.Packages.props", tunitVersion);
 
-        await XmlHelper.Save(xml, propsPath, newLine, hasTrailingNewline);
+        return XmlHelper.Save(xml, propsPath, newLine, hasTrailingNewline);
     }
 
     public static async Task AddToCsprojs(string directory, TestFramework framework)
