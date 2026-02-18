@@ -1,5 +1,8 @@
 static class PackagesMigrator
 {
+    // Coverlet is unnecessary because Microsoft.Testing.Platform (used by TUnit)
+    // has built-in code coverage support via --collect-code-coverage / --coverage.
+    // Microsoft.NET.Test.Sdk is the VSTest runner glue and is replaced by Microsoft.Testing.Platform.
     static readonly HashSet<string> alwaysRemove = new(StringComparer.OrdinalIgnoreCase)
     {
         "coverlet.collector",

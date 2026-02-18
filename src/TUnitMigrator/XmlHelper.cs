@@ -1,5 +1,3 @@
-using System.Text;
-
 static class XmlHelper
 {
     public static (string newLine, bool hasTrailingNewline) DetectNewLineInfo(string path)

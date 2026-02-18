@@ -20,7 +20,7 @@ public class YmlMigratorTests
         var tempDir = Path.Combine(Path.GetTempPath(), "TUnitMigratorYmlTests", Guid.NewGuid().ToString());
         var srcDir = Path.Combine(tempDir, "src");
         Directory.CreateDirectory(srcDir);
-        File.WriteAllText(Path.Combine(srcDir, "MySolution.slnx"), "<Solution />");
+        await File.WriteAllTextAsync(Path.Combine(srcDir, "MySolution.slnx"), "<Solution />");
 
         try
         {
@@ -69,7 +69,7 @@ public class YmlMigratorTests
         var tempDir = Path.Combine(Path.GetTempPath(), "TUnitMigratorYmlTests", Guid.NewGuid().ToString());
         var srcDir = Path.Combine(tempDir, "src");
         Directory.CreateDirectory(srcDir);
-        File.WriteAllText(Path.Combine(srcDir, "Test.sln"), "");
+        await File.WriteAllTextAsync(Path.Combine(srcDir, "Test.sln"), "");
 
         try
         {

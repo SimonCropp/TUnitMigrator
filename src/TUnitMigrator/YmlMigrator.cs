@@ -37,7 +37,6 @@ static class YmlMigrator
             }
 
             var prefix = match.Groups[1].Value;
-            var command = match.Groups[2].Value;
             var dirArg = match.Groups[3].Value;
             var rest = match.Groups[4].Value;
 
