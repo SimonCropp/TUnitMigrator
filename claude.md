@@ -15,13 +15,23 @@ dotnet test --solution src/TUnitMigrator.slnx
 - **CsprojMigrator.cs** — Updates `.csproj` `PackageReference` entries based on migrations from PackagesMigrator.
 - **YmlMigrator.cs** — Rewrites `dotnet test <dir>` to `dotnet test --solution <dir>/SolutionFile` in `.yml` files.
 - **GlobalJsonRelocator.cs** — Moves `global.json` to project root if exactly one found.
+- **CodeMigrator.cs** — Runs `dotnet format analyzers` with framework-specific TUnit diagnostics (TUMS0001/TUNU0001/TUXU0001) to migrate C# source code.
+- **TUnitAdder.cs** — Adds TUnit to `Directory.Packages.props` and `.csproj` files before code migration (so the project still compiles).
 - **ExtensionPackageResolver.cs** — Maps `.MSTest`/`.NUnit`/`.Xunit`/`.XunitV3` suffixes to `.TUnit`.
 - **NuGetPackageChecker.cs** — Queries NuGet for package existence and latest stable version.
 - **XmlHelper.cs** — Format-preserving XML read/write (newline detection, trailing newline).
+
+## Migration Order
+
+1. Add TUnit to props + csprojs (TUnitAdder)
+2. Run `dotnet format analyzers` for C# code migration (CodeMigrator)
+3. Remove old framework packages from props (PackagesMigrator)
+4. Update csproj references (CsprojMigrator)
+5. Rewrite yml CI files (YmlMigrator)
+6. Relocate global.json (GlobalJsonRelocator)
 
 ## Conventions
 
 - Uses Central Package Management (CPM) — `Directory.Packages.props` is required.
 - Each git repo (identified by `.git` directory) is one migration unit.
-- Does NOT rewrite C# source code — TUnit's Roslyn analyzers handle that.
 - Follow the patterns in `C:\Code\PackageUpdate` for code style.

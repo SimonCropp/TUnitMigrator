@@ -11,31 +11,7 @@ static class PackagesMigrator
     };
 
     static HashSet<string> GetFrameworkPackagesToRemove(TestFramework framework) =>
-        framework switch
-        {
-            TestFramework.MSTest => new(StringComparer.OrdinalIgnoreCase)
-            {
-                "MSTest",
-                "MSTest.TestFramework",
-                "MSTest.TestAdapter"
-            },
-            TestFramework.NUnit => new(StringComparer.OrdinalIgnoreCase)
-            {
-                "NUnit",
-                "NUnit3TestAdapter"
-            },
-            TestFramework.Xunit => new(StringComparer.OrdinalIgnoreCase)
-            {
-                "xunit",
-                "xunit.runner.visualstudio"
-            },
-            TestFramework.XunitV3 => new(StringComparer.OrdinalIgnoreCase)
-            {
-                "xunit.v3",
-                "xunit.runner.visualstudio"
-            },
-            _ => []
-        };
+        FrameworkDetector.GetPackageNames(framework);
 
     public static async Task<List<(string OldPackage, string NewPackage)>> Migrate(
         string propsPath,

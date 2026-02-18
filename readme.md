@@ -35,8 +35,8 @@ Removes the following NuGet packages from `Directory.Packages.props`:
 | `MSTest.TestAdapter` | | | |
 
 **Always removed** (all frameworks):
-- `coverlet.collector`, `coverlet.msbuild` — Coverlet is unnecessary because Microsoft.Testing.Platform (used by TUnit) has built-in code coverage support via `--collect-code-coverage` / `--coverage`
-- `Microsoft.NET.Test.Sdk` — the VSTest runner glue, replaced by Microsoft.Testing.Platform
+- `coverlet.collector`, `coverlet.msbuild` — [Coverlet is unnecessary](https://learn.microsoft.com/en-us/dotnet/core/testing/microsoft-testing-platform-extensions-code-coverage) because Microsoft.Testing.Platform (used by TUnit) has built-in code coverage support via `--coverage`
+- `Microsoft.NET.Test.Sdk` — the VSTest runner glue, replaced by [Microsoft.Testing.Platform](https://learn.microsoft.com/en-us/dotnet/core/testing/microsoft-testing-platform-intro)
 
 
 ### 2. TUnit Package Addition
@@ -82,6 +82,19 @@ The tool finds the first `.slnx` or `.sln` file in the referenced directory.
 If exactly one `global.json` is found in the project and it's not at the root, it's moved to the root.
 
 
+### 7. C# Source Code Migration
+
+The tool automatically runs `dotnet format analyzers` with the appropriate TUnit diagnostic to migrate C# source code (attributes, assertions, etc.):
+
+| Framework | Diagnostic |
+|-----------|-----------|
+| MSTest | `TUMS0001` |
+| NUnit | `TUNU0001` |
+| xUnit / xUnit v3 | `TUXU0001` |
+
+This step runs after TUnit is added but before old framework packages are removed, so the project can still compile during analysis.
+
+
 ## Requirements
 
 - **Central Package Management (CPM)**: Projects must use a `Directory.Packages.props` file with `<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>`.
@@ -90,13 +103,7 @@ If exactly one `global.json` is found in the project and it's not at the root, i
 
 ## Post-Migration
 
-After running the tool, use TUnit's Roslyn analyzers to migrate C# source code (attributes, assertions, etc.):
-
-```bash
-dotnet format analyzers --severity info --diagnostics TUMS0001 TUNU0001 TUXU0001
-```
-
-This handles the actual C# code transformation — the migrator tool focuses exclusively on project infrastructure.
+Some patterns may not be automatically migrated. Review the output for any remaining manual changes needed. See the official TUnit migration guides below for detailed guidance.
 
 
 ## Official TUnit Migration Guides

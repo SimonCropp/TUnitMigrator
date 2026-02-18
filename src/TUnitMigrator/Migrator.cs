@@ -77,10 +77,17 @@ static class Migrator
 
         Log.Information("Latest TUnit version: {Version}", tunitVersion);
 
-        // Run PackagesMigrator
+        // Add TUnit to props and csprojs first (old framework still present so code compiles)
+        await TUnitAdder.AddToProps(propsPath, tunitVersion);
+        await TUnitAdder.AddToCsprojs(projectRoot, framework);
+
+        // Run CodeMigrator (dotnet format analyzers) while both old and new frameworks are present
+        await CodeMigrator.Migrate(projectRoot, framework);
+
+        // Run PackagesMigrator (removes old framework packages, handles extensions)
         var migrations = await PackagesMigrator.Migrate(propsPath, framework, tunitVersion, sources, cache);
 
-        // Run CsprojMigrator
+        // Run CsprojMigrator (removes old PackageReferences from csprojs)
         await CsprojMigrator.Migrate(projectRoot, migrations);
 
         // Run YmlMigrator

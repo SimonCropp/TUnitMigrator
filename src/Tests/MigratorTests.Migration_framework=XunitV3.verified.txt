@@ -40,5 +40,16 @@ jobs:
     "runner": "Microsoft.Testing.Platform"
   }
 }
+,
+  testsCs:
+using System.Threading.Tasks;
 
+public class Tests
+{
+    [Test]
+    public async Task SimpleTest()
+    {
+        await Assert.That(1).IsEqualTo(1);
+    }
+}
 }

@@ -9,6 +9,16 @@ enum TestFramework
 
 static class FrameworkDetector
 {
+    public static HashSet<string> GetPackageNames(TestFramework framework) =>
+        framework switch
+        {
+            TestFramework.MSTest => new(StringComparer.OrdinalIgnoreCase) { "MSTest", "MSTest.TestFramework", "MSTest.TestAdapter" },
+            TestFramework.NUnit => new(StringComparer.OrdinalIgnoreCase) { "NUnit", "NUnit3TestAdapter" },
+            TestFramework.Xunit => new(StringComparer.OrdinalIgnoreCase) { "xunit", "xunit.runner.visualstudio" },
+            TestFramework.XunitV3 => new(StringComparer.OrdinalIgnoreCase) { "xunit.v3", "xunit.runner.visualstudio" },
+            _ => []
+        };
+
     public static TestFramework Detect(XDocument propsXml)
     {
         var packageNames = propsXml

@@ -37,6 +37,7 @@ public class MigratorTests
         var csproj = await File.ReadAllTextAsync(Path.Combine(tempDir, "src", "TestProject.csproj"));
         var yml = await File.ReadAllTextAsync(Path.Combine(tempDir, ".github", "workflows", "ci.yml"));
         var globalJson = await File.ReadAllTextAsync(Path.Combine(tempDir, "global.json"));
+        var testsCs = await File.ReadAllTextAsync(Path.Combine(tempDir, "src", "Tests.cs"));
 
         await Verify(
             new
@@ -44,7 +45,8 @@ public class MigratorTests
                 props,
                 csproj,
                 yml,
-                globalJson
+                globalJson,
+                testsCs
             });
     }
 
