@@ -3,7 +3,7 @@
 [![Build status](https://img.shields.io/appveyor/build/SimonCropp/TUnitMigrator)](https://ci.appveyor.com/project/SimonCropp/TUnitMigrator)
 [![NuGet Status](https://img.shields.io/nuget/v/TUnitMigrator.svg)](https://www.nuget.org/packages/TUnitMigrator/)
 
-A .NET global tool that migrates test projects from MSTest, NUnit, xUnit, and xUnit v3 to [TUnit](https://github.com/thomhurst/TUnit).
+A .NET tool that migrates test projects from MSTest, NUnit, xUnit, and xUnit v3 to [TUnit](https://github.com/thomhurst/TUnit).
 
 ## Installation
 
