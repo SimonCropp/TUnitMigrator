@@ -56,7 +56,8 @@ static class CsprojMigrator
                 if (!hasTUnit)
                 {
                     var itemGroup = csprojXml.Descendants("ItemGroup")
-                        .FirstOrDefault(_ => _.Descendants("PackageReference").Any());
+                        .FirstOrDefault(_ => _.Descendants("PackageReference").Any())
+                        ?? csprojXml.Descendants("ItemGroup").FirstOrDefault();
                     if (itemGroup != null)
                     {
                         itemGroup.Add(new XElement("PackageReference", new XAttribute("Include", "TUnit")));
