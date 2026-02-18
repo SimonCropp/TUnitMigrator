@@ -288,4 +288,95 @@ public class GlobalJsonRelocatorTests
 
         await Assert.That(File.GetLastWriteTimeUtc(Path.Combine(tempDir, "ci.yml"))).IsEqualTo(lastWrite);
     }
+
+    [Test]
+    public async Task FixesSlnxReferenceWhenSolutionInSameDir()
+    {
+        using var tempDir = new TempDirectory();
+        var subDir = Path.Combine(tempDir, "src");
+        Directory.CreateDirectory(subDir);
+        await File.WriteAllTextAsync(Path.Combine(subDir, "global.json"), """{ "sdk": { "version": "10.0.103" } }""");
+        await File.WriteAllTextAsync(Path.Combine(subDir, "App.slnx"),
+            """
+            <Solution>
+              <Folder Name="/Solution Items/">
+                <File Path="global.json" />
+              </Folder>
+            </Solution>
+            """);
+
+        await GlobalJsonRelocator.Relocate(tempDir);
+
+        var slnxContent = await File.ReadAllTextAsync(Path.Combine(subDir, "App.slnx"));
+        await Assert.That(slnxContent).Contains("""<File Path="../global.json" />""");
+        await Assert.That(slnxContent).DoesNotContain("""<File Path="global.json" />""");
+    }
+
+    [Test]
+    public async Task FixesSlnxReferenceWhenSolutionAtRoot()
+    {
+        using var tempDir = new TempDirectory();
+        var subDir = Path.Combine(tempDir, "src");
+        Directory.CreateDirectory(subDir);
+        await File.WriteAllTextAsync(Path.Combine(subDir, "global.json"), """{ "sdk": { "version": "10.0.103" } }""");
+        await File.WriteAllTextAsync(Path.Combine(tempDir, "App.slnx"),
+            """
+            <Solution>
+              <Folder Name="/Solution Items/">
+                <File Path="src/global.json" />
+              </Folder>
+            </Solution>
+            """);
+
+        await GlobalJsonRelocator.Relocate(tempDir);
+
+        var slnxContent = await File.ReadAllTextAsync(Path.Combine(tempDir, "App.slnx"));
+        await Assert.That(slnxContent).Contains("""<File Path="global.json" />""");
+        await Assert.That(slnxContent).DoesNotContain("""Path="src/global.json""");
+    }
+
+    [Test]
+    public async Task FixesSlnReferenceWithBackslashes()
+    {
+        using var tempDir = new TempDirectory();
+        var subDir = Path.Combine(tempDir, "src");
+        Directory.CreateDirectory(subDir);
+        await File.WriteAllTextAsync(Path.Combine(subDir, "global.json"), """{ "sdk": { "version": "10.0.103" } }""");
+        await File.WriteAllTextAsync(Path.Combine(tempDir, "App.sln"),
+            """
+            Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A34907DF-958A-4E4C-8491-84CF303FD13E}"
+            	ProjectSection(SolutionItems) = preProject
+            		src\global.json = src\global.json
+            	EndProjectSection
+            EndProject
+            """);
+
+        await GlobalJsonRelocator.Relocate(tempDir);
+
+        var slnContent = await File.ReadAllTextAsync(Path.Combine(tempDir, "App.sln"));
+        await Assert.That(slnContent).Contains("global.json = global.json");
+        await Assert.That(slnContent).DoesNotContain(@"src\global.json");
+    }
+
+    [Test]
+    public async Task FixesSlnReferenceWhenSolutionInSubdir()
+    {
+        using var tempDir = new TempDirectory();
+        var subDir = Path.Combine(tempDir, "src");
+        Directory.CreateDirectory(subDir);
+        await File.WriteAllTextAsync(Path.Combine(subDir, "global.json"), """{ "sdk": { "version": "10.0.103" } }""");
+        await File.WriteAllTextAsync(Path.Combine(subDir, "App.sln"),
+            """
+            Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A34907DF-958A-4E4C-8491-84CF303FD13E}"
+            	ProjectSection(SolutionItems) = preProject
+            		global.json = global.json
+            	EndProjectSection
+            EndProject
+            """);
+
+        await GlobalJsonRelocator.Relocate(tempDir);
+
+        var slnContent = await File.ReadAllTextAsync(Path.Combine(subDir, "App.sln"));
+        await Assert.That(slnContent).Contains(@"..\global.json = ..\global.json");
+    }
 }

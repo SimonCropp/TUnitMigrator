@@ -33,6 +33,7 @@ static class GlobalJsonRelocator
             Log.Information("Relocated global.json from {Source} to {Destination}", globalJsonPath, rootGlobalJson);
 
             await FixYmlReferences(projectRoot, globalJsonPath);
+            await FixSolutionReferences(projectRoot, globalJsonPath);
         }
 
         await EnsureTestRunner(rootGlobalJson);
@@ -103,6 +104,41 @@ static class GlobalJsonRelocator
 
             await File.WriteAllTextAsync(ymlPath, newContent);
             Log.Information("Updated global.json reference in {File}: {Old} -> global.json", ymlPath, oldRelative);
+        }
+    }
+
+    static async Task FixSolutionReferences(string projectRoot, string oldGlobalJsonPath)
+    {
+        var rootGlobalJson = Path.Combine(projectRoot, "global.json");
+
+        var solutionFiles = FileSystem.EnumerateFiles(projectRoot, "*.slnx")
+            .Concat(FileSystem.EnumerateFiles(projectRoot, "*.sln"));
+
+        foreach (var solutionPath in solutionFiles)
+        {
+            var solutionDir = Path.GetDirectoryName(solutionPath)!;
+            var oldRelative = Path.GetRelativePath(solutionDir, oldGlobalJsonPath);
+            var newRelative = Path.GetRelativePath(solutionDir, rootGlobalJson);
+
+            var isSlnx = solutionPath.EndsWith(".slnx", StringComparison.OrdinalIgnoreCase);
+
+            // .slnx uses forward slashes, .sln uses backslashes
+            if (isSlnx)
+            {
+                oldRelative = oldRelative.Replace('\\', '/');
+                newRelative = newRelative.Replace('\\', '/');
+            }
+
+            var content = await File.ReadAllTextAsync(solutionPath);
+            var newContent = content.Replace(oldRelative, newRelative);
+
+            if (content == newContent)
+            {
+                continue;
+            }
+
+            await File.WriteAllTextAsync(solutionPath, newContent);
+            Log.Information("Updated global.json reference in {File}: {Old} -> {New}", solutionPath, oldRelative, newRelative);
         }
     }
 }
