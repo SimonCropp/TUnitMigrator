@@ -1,3 +1,4 @@
+global using System.Text.RegularExpressions;
 global using System.Xml.Linq;
 global using NuGet.Protocol.Core.Types;
 global using NuGet.Versioning;
