@@ -83,7 +83,7 @@ static class PackagesMigrator
                 continue;
             }
 
-            var resolved = await ExtensionPackageResolver.TryResolve(name, framework, sources, cache);
+            var resolved = await ExtensionPackageResolver.TryResolve(name, sources, cache);
             if (resolved != null)
             {
                 var (newPackage, newVersion) = resolved.Value;

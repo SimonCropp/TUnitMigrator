@@ -10,7 +10,6 @@ static class ExtensionPackageResolver
 
     public static async Task<(string newPackage, NuGetVersion version)?> TryResolve(
         string packageName,
-        TestFramework framework,
         List<PackageSource> sources,
         SourceCacheContext cache)
     {
@@ -30,18 +29,6 @@ static class ExtensionPackageResolver
         if (version != null)
         {
             return (tunitCandidate, version);
-        }
-
-        // For XunitV3, also try .Xunit suffix as fallback
-        if (framework == TestFramework.XunitV3 &&
-            string.Equals(matchedSuffix, ".XunitV3", StringComparison.OrdinalIgnoreCase))
-        {
-            var xunitCandidate = $"{baseName}.Xunit";
-            var xunitTunitCandidate = $"{baseName}.TUnit";
-            // Already tried .TUnit above, so try checking if .Xunit has a .TUnit equivalent
-            // Actually the .TUnit was already tried. For XunitV3, the fallback is that
-            // the .Xunit suffix package might have a .TUnit equivalent already covered.
-            // This case is already handled above.
         }
 
         return null;
