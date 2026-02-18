@@ -154,4 +154,78 @@ public class GlobalJsonRelocatorTests
         var json = JsonNode.Parse(await File.ReadAllTextAsync(path))!;
         await Assert.That(json["sdk"]?["version"]?.ToString()).IsEqualTo("10.0.103");
     }
+
+    [Test]
+    public async Task RelocationPreservesContent()
+    {
+        using var tempDir = new TempDirectory();
+        var subDir = Path.Combine(tempDir, "src");
+        Directory.CreateDirectory(subDir);
+        await File.WriteAllTextAsync(Path.Combine(subDir, "global.json"),
+            """
+            {
+              "sdk": {
+                "version": "9.0.100",
+                "rollForward": "latestFeature"
+              }
+            }
+            """);
+
+        await GlobalJsonRelocator.Relocate(tempDir);
+
+        var json = JsonNode.Parse(await File.ReadAllTextAsync(Path.Combine(tempDir, "global.json")))!;
+        await Assert.That(json["sdk"]?["version"]?.ToString()).IsEqualTo("9.0.100");
+        await Assert.That(json["sdk"]?["rollForward"]?.ToString()).IsEqualTo("latestFeature");
+    }
+
+    [Test]
+    public async Task RelocatesFromDeeplyNestedDirectory()
+    {
+        using var tempDir = new TempDirectory();
+        var deepDir = Path.Combine(tempDir, "a", "b", "c");
+        Directory.CreateDirectory(deepDir);
+        await File.WriteAllTextAsync(Path.Combine(deepDir, "global.json"), """{ "sdk": { "version": "10.0.103" } }""");
+
+        await GlobalJsonRelocator.Relocate(tempDir);
+
+        await Assert.That(File.Exists(Path.Combine(tempDir, "global.json"))).IsTrue();
+        await Assert.That(File.Exists(Path.Combine(deepDir, "global.json"))).IsFalse();
+    }
+
+    [Test]
+    public async Task PreservesTrailingNewline()
+    {
+        using var tempDir = new TempDirectory();
+        var path = Path.Combine(tempDir, "global.json");
+        await File.WriteAllTextAsync(path, "{\n  \"sdk\": {\n    \"version\": \"10.0.103\"\n  }\n}\n");
+
+        await GlobalJsonRelocator.Relocate(tempDir);
+
+        var content = await File.ReadAllTextAsync(path);
+        await Assert.That(content).EndsWith("\n");
+    }
+
+    [Test]
+    public async Task DoesNotModifyFileWhenRunnerAlreadySet()
+    {
+        using var tempDir = new TempDirectory();
+        var path = Path.Combine(tempDir, "global.json");
+        var original = """
+            {
+              "sdk": {
+                "version": "10.0.103"
+              },
+              "test": {
+                "runner": "Microsoft.Testing.Platform"
+              }
+            }
+            """;
+        await File.WriteAllTextAsync(path, original);
+        var lastWrite = File.GetLastWriteTimeUtc(path);
+
+        await Task.Delay(50);
+        await GlobalJsonRelocator.Relocate(tempDir);
+
+        await Assert.That(File.GetLastWriteTimeUtc(path)).IsEqualTo(lastWrite);
+    }
 }

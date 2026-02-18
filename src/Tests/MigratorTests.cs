@@ -29,6 +29,8 @@ public class MigratorTests
         var scenarioName = $"{framework}Scenario";
         var source = Path.GetFullPath(Path.Combine(ScenariosDir, scenarioName));
         CopyDirectory(source, tempDir);
+        // Create .git marker directory (git cannot track .git directories in scenarios)
+        Directory.CreateDirectory(Path.Combine(tempDir, ".git"));
         await Migrator.Migrate(tempDir);
 
         var props = await File.ReadAllTextAsync(Path.Combine(tempDir, "Directory.Packages.props"));
@@ -44,5 +46,31 @@ public class MigratorTests
                 yml,
                 globalJson
             });
+    }
+
+    [Test]
+    public async Task AlreadyMigratedToTUnitIsUnchanged()
+    {
+        using var tempDir = new TempDirectory();
+        var source = Path.GetFullPath(Path.Combine(ScenariosDir, "TUnitScenario"));
+        CopyDirectory(source, tempDir);
+        Directory.CreateDirectory(Path.Combine(tempDir, ".git"));
+
+        var propsBefore = await File.ReadAllTextAsync(Path.Combine(tempDir, "Directory.Packages.props"));
+        var csprojBefore = await File.ReadAllTextAsync(Path.Combine(tempDir, "src", "TestProject.csproj"));
+        var ymlBefore = await File.ReadAllTextAsync(Path.Combine(tempDir, ".github", "workflows", "ci.yml"));
+        var globalJsonBefore = await File.ReadAllTextAsync(Path.Combine(tempDir, "global.json"));
+
+        await Migrator.Migrate(tempDir);
+
+        var propsAfter = await File.ReadAllTextAsync(Path.Combine(tempDir, "Directory.Packages.props"));
+        var csprojAfter = await File.ReadAllTextAsync(Path.Combine(tempDir, "src", "TestProject.csproj"));
+        var ymlAfter = await File.ReadAllTextAsync(Path.Combine(tempDir, ".github", "workflows", "ci.yml"));
+        var globalJsonAfter = await File.ReadAllTextAsync(Path.Combine(tempDir, "global.json"));
+
+        await Assert.That(propsAfter).IsEqualTo(propsBefore);
+        await Assert.That(csprojAfter).IsEqualTo(csprojBefore);
+        await Assert.That(ymlAfter).IsEqualTo(ymlBefore);
+        await Assert.That(globalJsonAfter).IsEqualTo(globalJsonBefore);
     }
 }
