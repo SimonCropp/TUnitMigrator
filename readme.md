@@ -8,7 +8,7 @@ A .NET global tool that migrates test projects from MSTest, NUnit, xUnit, and xU
 ## Installation
 
 ```bash
-dotnet tool install -g TUnitMigrator
+dotnet tool install --global TUnitMigrator
 ```
 
 ## Usage
