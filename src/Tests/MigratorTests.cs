@@ -1,11 +1,6 @@
-namespace testing;
-
 public class MigratorTests
 {
-    static string ScenariosDir =>
-        Path.Combine(
-            Path.GetDirectoryName(typeof(MigratorTests).Assembly.Location)!,
-            "..", "..", "..", "..", "Scenarios");
+    static string ScenariosDir => Path.Combine(ProjectFiles.SolutionDirectory, "Scenarios");
 
     static string CopyScenarioToTemp(string scenarioName)
     {
@@ -34,15 +29,15 @@ public class MigratorTests
     [Test]
     public async Task MSTestMigration()
     {
-        var tempDir = CopyScenarioToTemp("MSTestScenario");
+        var targetDir = CopyScenarioToTemp("MSTestScenario");
         try
         {
-            await Migrator.Migrate(tempDir);
+            await Migrator.Migrate(targetDir);
 
-            var props = await File.ReadAllTextAsync(Path.Combine(tempDir, "Directory.Packages.props"));
-            var csproj = await File.ReadAllTextAsync(Path.Combine(tempDir, "src", "TestProject.csproj"));
-            var yml = await File.ReadAllTextAsync(Path.Combine(tempDir, ".github", "workflows", "ci.yml"));
-            var globalJson = await File.ReadAllTextAsync(Path.Combine(tempDir, "global.json"));
+            var props = await File.ReadAllTextAsync(Path.Combine(targetDir, "Directory.Packages.props"));
+            var csproj = await File.ReadAllTextAsync(Path.Combine(targetDir, "src", "TestProject.csproj"));
+            var yml = await File.ReadAllTextAsync(Path.Combine(targetDir, ".github", "workflows", "ci.yml"));
+            var globalJson = await File.ReadAllTextAsync(Path.Combine(targetDir, "global.json"));
 
             await Verify(
                 new
@@ -55,22 +50,22 @@ public class MigratorTests
         }
         finally
         {
-            Directory.Delete(tempDir, true);
+            Directory.Delete(targetDir, true);
         }
     }
 
     [Test]
     public async Task NUnitMigration()
     {
-        var tempDir = CopyScenarioToTemp("NUnitScenario");
+        var targetDir = CopyScenarioToTemp("NUnitScenario");
         try
         {
-            await Migrator.Migrate(tempDir);
+            await Migrator.Migrate(targetDir);
 
-            var props = await File.ReadAllTextAsync(Path.Combine(tempDir, "Directory.Packages.props"));
-            var csproj = await File.ReadAllTextAsync(Path.Combine(tempDir, "src", "TestProject.csproj"));
-            var yml = await File.ReadAllTextAsync(Path.Combine(tempDir, ".github", "workflows", "ci.yml"));
-            var globalJson = await File.ReadAllTextAsync(Path.Combine(tempDir, "global.json"));
+            var props = await File.ReadAllTextAsync(Path.Combine(targetDir, "Directory.Packages.props"));
+            var csproj = await File.ReadAllTextAsync(Path.Combine(targetDir, "src", "TestProject.csproj"));
+            var yml = await File.ReadAllTextAsync(Path.Combine(targetDir, ".github", "workflows", "ci.yml"));
+            var globalJson = await File.ReadAllTextAsync(Path.Combine(targetDir, "global.json"));
 
             await Verify(
                 new
@@ -83,22 +78,22 @@ public class MigratorTests
         }
         finally
         {
-            Directory.Delete(tempDir, true);
+            Directory.Delete(targetDir, true);
         }
     }
 
     [Test]
     public async Task XunitMigration()
     {
-        var tempDir = CopyScenarioToTemp("XunitScenario");
+        var targetDir = CopyScenarioToTemp("XunitScenario");
         try
         {
-            await Migrator.Migrate(tempDir);
+            await Migrator.Migrate(targetDir);
 
-            var props = await File.ReadAllTextAsync(Path.Combine(tempDir, "Directory.Packages.props"));
-            var csproj = await File.ReadAllTextAsync(Path.Combine(tempDir, "src", "TestProject.csproj"));
-            var yml = await File.ReadAllTextAsync(Path.Combine(tempDir, ".github", "workflows", "ci.yml"));
-            var globalJson = await File.ReadAllTextAsync(Path.Combine(tempDir, "global.json"));
+            var props = await File.ReadAllTextAsync(Path.Combine(targetDir, "Directory.Packages.props"));
+            var csproj = await File.ReadAllTextAsync(Path.Combine(targetDir, "src", "TestProject.csproj"));
+            var yml = await File.ReadAllTextAsync(Path.Combine(targetDir, ".github", "workflows", "ci.yml"));
+            var globalJson = await File.ReadAllTextAsync(Path.Combine(targetDir, "global.json"));
 
             await Verify(
                 new
@@ -111,22 +106,22 @@ public class MigratorTests
         }
         finally
         {
-            Directory.Delete(tempDir, true);
+            Directory.Delete(targetDir, true);
         }
     }
 
     [Test]
     public async Task XunitV3Migration()
     {
-        var tempDir = CopyScenarioToTemp("XunitV3Scenario");
+        var targetDir = CopyScenarioToTemp("XunitV3Scenario");
         try
         {
-            await Migrator.Migrate(tempDir);
+            await Migrator.Migrate(targetDir);
 
-            var props = await File.ReadAllTextAsync(Path.Combine(tempDir, "Directory.Packages.props"));
-            var csproj = await File.ReadAllTextAsync(Path.Combine(tempDir, "src", "TestProject.csproj"));
-            var yml = await File.ReadAllTextAsync(Path.Combine(tempDir, ".github", "workflows", "ci.yml"));
-            var globalJson = await File.ReadAllTextAsync(Path.Combine(tempDir, "global.json"));
+            var props = await File.ReadAllTextAsync(Path.Combine(targetDir, "Directory.Packages.props"));
+            var csproj = await File.ReadAllTextAsync(Path.Combine(targetDir, "src", "TestProject.csproj"));
+            var yml = await File.ReadAllTextAsync(Path.Combine(targetDir, ".github", "workflows", "ci.yml"));
+            var globalJson = await File.ReadAllTextAsync(Path.Combine(targetDir, "global.json"));
 
             await Verify(
                 new
@@ -139,7 +134,7 @@ public class MigratorTests
         }
         finally
         {
-            Directory.Delete(tempDir, true);
+            Directory.Delete(targetDir, true);
         }
     }
 

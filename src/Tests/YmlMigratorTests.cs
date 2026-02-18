@@ -1,5 +1,3 @@
-namespace testing;
-
 public class YmlMigratorTests
 {
     [Test]

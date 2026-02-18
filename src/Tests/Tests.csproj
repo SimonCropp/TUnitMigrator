@@ -5,6 +5,7 @@
     <RootNamespace>testing</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="ProjectFiles" />
     <PackageReference Include="Verify.TUnit" />
     <PackageReference Include="Argon" />
     <PackageReference Include="DiffEngine" />
