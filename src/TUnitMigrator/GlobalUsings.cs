@@ -1,0 +1,16 @@
+global using System.Collections.Concurrent;
+global using System.Diagnostics;
+global using System.Text.Json;
+global using System.Text.Json.Nodes;
+global using System.Text.RegularExpressions;
+global using System.Xml;
+global using System.Xml.Linq;
+global using CommandLine;
+global using NuGet.Common;
+global using NuGet.Configuration;
+global using NuGet.Protocol;
+global using NuGet.Protocol.Core.Types;
+global using NuGet.Versioning;
+global using Serilog;
+global using Serilog.Events;
+global using Serilog.Parsing;
