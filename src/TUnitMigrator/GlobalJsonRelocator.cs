@@ -5,10 +5,13 @@ static class GlobalJsonRelocator
     public static async Task Relocate(string projectRoot)
     {
         var globalJsonFiles = FileSystem.EnumerateFiles(projectRoot, "global.json").ToList();
+        var rootGlobalJson = Path.Combine(projectRoot, "global.json");
 
         if (globalJsonFiles.Count == 0)
         {
-            Log.Information("No global.json found in {Directory}", projectRoot);
+            await File.WriteAllTextAsync(rootGlobalJson, "{}\n");
+            Log.Information("Created global.json at root of {Directory}", projectRoot);
+            await EnsureTestRunner(rootGlobalJson);
             return;
         }
 
@@ -19,7 +22,6 @@ static class GlobalJsonRelocator
         }
 
         var globalJsonPath = globalJsonFiles[0];
-        var rootGlobalJson = Path.Combine(projectRoot, "global.json");
 
         if (string.Equals(Path.GetFullPath(globalJsonPath), Path.GetFullPath(rootGlobalJson), StringComparison.OrdinalIgnoreCase))
         {

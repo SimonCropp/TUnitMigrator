@@ -83,7 +83,7 @@ The tool finds the first `.slnx` or `.sln` file in the referenced directory.
 
 ### 6. `global.json` Relocation
 
-If exactly one `global.json` is found in the project and it's not at the root, it's moved to the root. When relocated:
+If no `global.json` exists, one is created at the project root. If exactly one is found and it's not at the root, it's moved to the root. When relocated:
 
 - References to the old `global.json` path in `.yml` files are updated
 - References to the old `global.json` path in `.sln` and `.slnx` solution files are patched to point to the new location (`.slnx` uses forward slashes, `.sln` uses backslashes)

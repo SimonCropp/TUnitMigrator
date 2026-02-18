@@ -59,13 +59,16 @@ public class GlobalJsonRelocatorTests
     }
 
     [Test]
-    public async Task SkipsWhenNoGlobalJson()
+    public async Task CreatesGlobalJsonWhenNoneExists()
     {
         using var tempDir = new TempDirectory();
 
         await GlobalJsonRelocator.Relocate(tempDir);
 
-        await Assert.That(File.Exists(Path.Combine(tempDir, "global.json"))).IsFalse();
+        var path = Path.Combine(tempDir, "global.json");
+        await Assert.That(File.Exists(path)).IsTrue();
+        var json = JsonNode.Parse(await File.ReadAllTextAsync(path))!;
+        await Assert.That(json["test"]?["runner"]?.ToString()).IsEqualTo("Microsoft.Testing.Platform");
     }
 
     [Test]
