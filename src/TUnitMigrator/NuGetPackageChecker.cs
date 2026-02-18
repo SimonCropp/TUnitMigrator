@@ -37,14 +37,4 @@ static class NuGetPackageChecker
 
         versionCache[packageId] = null;
         return null;
-    }
-
-    public static async Task<bool> PackageExists(
-        string packageId,
-        List<PackageSource> sources,
-        SourceCacheContext cache)
-    {
-        var version = await GetLatestStableVersion(packageId, sources, cache);
-        return version != null;
-    }
-}
+    }}
