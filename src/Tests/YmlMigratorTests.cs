@@ -14,41 +14,24 @@ public class YmlMigratorTests
                           - run: dotnet test src --configuration Release
                     """;
 
-        // Create a temp directory with a solution file
-        var tempDir = Path.Combine(Path.GetTempPath(), "TUnitMigratorYmlTests", Guid.NewGuid().ToString());
+        using var tempDir = new TempDirectory();
         var srcDir = Path.Combine(tempDir, "src");
         Directory.CreateDirectory(srcDir);
         await File.WriteAllTextAsync(Path.Combine(srcDir, "MySolution.slnx"), "<Solution />");
 
-        try
-        {
-            var result = YmlMigrator.MigrateContent(input, tempDir);
-            await Assert.That(result).Contains("dotnet test --solution src/MySolution.slnx --configuration Release");
-        }
-        finally
-        {
-            Directory.Delete(tempDir, true);
-        }
+        var result = YmlMigrator.MigrateContent(input, tempDir);
+        await Assert.That(result).Contains("dotnet test --solution src/MySolution.slnx --configuration Release");
     }
 
     [Test]
     public async Task DotnetTestWithFlagOnly()
     {
         var input = "      - run: dotnet test --configuration Release";
+        using var tempDir = new TempDirectory();
 
-        var tempDir = Path.Combine(Path.GetTempPath(), "TUnitMigratorYmlTests", Guid.NewGuid().ToString());
-        Directory.CreateDirectory(tempDir);
-
-        try
-        {
-            var result = YmlMigrator.MigrateContent(input, tempDir);
-            // Should not be modified since --configuration is a flag, not a directory
-            await Assert.That(result).IsEqualTo(input);
-        }
-        finally
-        {
-            Directory.Delete(tempDir, true);
-        }
+        var result = YmlMigrator.MigrateContent(input, tempDir);
+        // Should not be modified since --configuration is a flag, not a directory
+        await Assert.That(result).IsEqualTo(input);
     }
 
     [Test]
@@ -64,20 +47,13 @@ public class YmlMigratorTests
                           - run: dotnet test src --configuration Release --no-build
                     """;
 
-        var tempDir = Path.Combine(Path.GetTempPath(), "TUnitMigratorYmlTests", Guid.NewGuid().ToString());
+        using var tempDir = new TempDirectory();
         var srcDir = Path.Combine(tempDir, "src");
         Directory.CreateDirectory(srcDir);
         await File.WriteAllTextAsync(Path.Combine(srcDir, "Test.sln"), "");
 
-        try
-        {
-            var result = YmlMigrator.MigrateContent(input, tempDir);
-            await Assert.That(result).Contains("dotnet test --solution src/Test.sln --configuration Release --no-build");
-            await Assert.That(result).Contains("dotnet build");
-        }
-        finally
-        {
-            Directory.Delete(tempDir, true);
-        }
+        var result = YmlMigrator.MigrateContent(input, tempDir);
+        await Assert.That(result).Contains("dotnet test --solution src/Test.sln --configuration Release --no-build");
+        await Assert.That(result).Contains("dotnet build");
     }
 }
