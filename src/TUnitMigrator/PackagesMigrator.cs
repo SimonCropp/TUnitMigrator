@@ -88,6 +88,8 @@ static class PackagesMigrator
             }
         }
 
+        NoWarnScrubber.ScrubXunitNoWarns(xml);
+
         await XmlHelper.Save(xml, propsPath, newLine, hasTrailingNewline);
 
         return migrations;

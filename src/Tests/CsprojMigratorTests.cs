@@ -126,6 +126,59 @@ public class CsprojMigratorTests
     }
 
     [Test]
+    public async Task ScrubsXunitNoWarnsFromCsproj()
+    {
+        using var tempDir = new TempDirectory();
+        var csproj = Path.Combine(tempDir, "Test.csproj");
+        await File.WriteAllTextAsync(csproj,
+            """
+            <Project Sdk="Microsoft.NET.Sdk">
+              <PropertyGroup>
+                <NoWarn>$(NoWarn);CS0649;CS8618;CS0105;xUnit1013;xUnit1051</NoWarn>
+              </PropertyGroup>
+              <ItemGroup>
+                <PackageReference Include="xunit" />
+              </ItemGroup>
+            </Project>
+            """);
+
+        List<(string OldPackage, string NewPackage)> migrations = [("xunit", "")];
+
+        await CsprojMigrator.Migrate(tempDir, migrations);
+
+        var result = await File.ReadAllTextAsync(csproj);
+        await Assert.That(result).DoesNotContain("xUnit1013");
+        await Assert.That(result).DoesNotContain("xUnit1051");
+        await Assert.That(result).Contains("$(NoWarn);CS0649;CS8618;CS0105");
+    }
+
+    [Test]
+    public async Task ScrubsXunitNoWarnsEvenWithNoMigrations()
+    {
+        using var tempDir = new TempDirectory();
+        var csproj = Path.Combine(tempDir, "Test.csproj");
+        await File.WriteAllTextAsync(csproj,
+            """
+            <Project Sdk="Microsoft.NET.Sdk">
+              <PropertyGroup>
+                <NoWarn>$(NoWarn);xUnit1013;xUnit1051</NoWarn>
+              </PropertyGroup>
+              <ItemGroup>
+                <PackageReference Include="Newtonsoft.Json" />
+              </ItemGroup>
+            </Project>
+            """);
+
+        List<(string OldPackage, string NewPackage)> migrations = [];
+
+        await CsprojMigrator.Migrate(tempDir, migrations);
+
+        var result = await File.ReadAllTextAsync(csproj);
+        await Assert.That(result).DoesNotContain("xUnit1013");
+        await Assert.That(result).DoesNotContain("xUnit1051");
+    }
+
+    [Test]
     public async Task HandlesNestedCsprojFiles()
     {
         using var tempDir = new TempDirectory();

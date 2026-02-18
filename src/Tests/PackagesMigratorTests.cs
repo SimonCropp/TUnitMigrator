@@ -218,6 +218,28 @@ public class PackagesMigratorTests
     }
 
     [Test]
+    public async Task ScrubsXunitNoWarnsFromProps()
+    {
+        var (result, _) = await RunMigrate(
+            """
+            <Project>
+              <PropertyGroup>
+                <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+                <NoWarn>$(NoWarn);CS0649;CS8618;xUnit1013;xUnit1051</NoWarn>
+              </PropertyGroup>
+              <ItemGroup>
+                <PackageVersion Include="xunit" Version="2.9.3" />
+              </ItemGroup>
+            </Project>
+            """,
+            TestFramework.Xunit);
+
+        await Assert.That(result).DoesNotContain("xUnit1013");
+        await Assert.That(result).DoesNotContain("xUnit1051");
+        await Assert.That(result).Contains("$(NoWarn);CS0649;CS8618");
+    }
+
+    [Test]
     public async Task ReturnsMigrationsForRemovedPackages()
     {
         var (_, migrations) = await RunMigrate(

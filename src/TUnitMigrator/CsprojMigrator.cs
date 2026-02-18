@@ -67,6 +67,11 @@ static class CsprojMigrator
                 }
             }
 
+            if (NoWarnScrubber.ScrubXunitNoWarns(csprojXml))
+            {
+                updated = true;
+            }
+
             if (updated)
             {
                 await XmlHelper.Save(csprojXml, csprojPath, newLine, hasTrailingNewline);

@@ -64,6 +64,7 @@ For each `.csproj` file:
 - Removes `<PackageReference>` entries for removed packages
 - Renames `<PackageReference>` entries for migrated extension packages
 - Adds `<PackageReference Include="TUnit" />` if any test references were modified
+- Scrubs xUnit `NoWarn` suppressions from `<NoWarn>` elements (e.g. `xUnit1013`, `xUnit1051`). If all entries in a `<NoWarn>` element are xUnit warnings, the entire element is removed
 
 
 ### 5. YML CI File Migration
@@ -82,7 +83,10 @@ The tool finds the first `.slnx` or `.sln` file in the referenced directory.
 
 ### 6. `global.json` Relocation
 
-If exactly one `global.json` is found in the project and it's not at the root, it's moved to the root.
+If exactly one `global.json` is found in the project and it's not at the root, it's moved to the root. When relocated:
+
+- References to the old `global.json` path in `.yml` files are updated
+- References to the old `global.json` path in `.sln` and `.slnx` solution files are patched to point to the new location (`.slnx` uses forward slashes, `.sln` uses backslashes)
 
 
 ### 7. C# Source Code Migration
