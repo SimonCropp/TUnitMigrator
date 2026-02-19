@@ -31,15 +31,33 @@ tunit-migrate -t /path/to/repo
 
 Removes the following NuGet packages from `Directory.Packages.props`:
 
-| MSTest | NUnit | xUnit | xUnit v3 |
-|--------|-------|-------|----------|
-| `MSTest` | `NUnit` | `xunit` | `xunit.v3` |
-| `MSTest.TestFramework` | `NUnit3TestAdapter` | `xunit.runner.visualstudio` | `xunit.runner.visualstudio` |
-| `MSTest.TestAdapter` | `NUnit.ConsoleRunner` | `xunit.abstractions` | `xunit.abstractions` |
-| `MSTest.Analyzers` | `NUnit.Analyzers` | `xunit.extensibility.*` | `xunit.extensibility.*` |
-| `Microsoft.Testing.*` | `NUnit.Console` | | |
+**MSTest**
+
+- `MSTest`
+- `MSTest.TestFramework`
+- `MSTest.TestAdapter`
+- `MSTest.Analyzers`
+- `Microsoft.Testing.*`
+
+**NUnit**
+
+- `NUnit`
+- `NUnit3TestAdapter`
+- `NUnit.ConsoleRunner`
+- `NUnit.Analyzers`
+- `NUnit.Console`
+
+**xUnit**
+
+- `xunit.v3`
+- `xunit`
+- `xunit.runner.visualstudio`
+- `xunit.abstractions`
+- `xunit.extensibility.*`
+
 
 **Always removed** (all frameworks):
+
 - `coverlet.collector`, `coverlet.msbuild` — [Coverlet is unnecessary](https://learn.microsoft.com/en-us/dotnet/core/testing/microsoft-testing-platform-extensions-code-coverage) because Microsoft.Testing.Platform (used by TUnit) has built-in code coverage support via `--coverage`
 - `Microsoft.NET.Test.Sdk` — the VSTest runner glue, replaced by [Microsoft.Testing.Platform](https://learn.microsoft.com/en-us/dotnet/core/testing/microsoft-testing-platform-intro)
 - `Microsoft.CodeCoverage` — replaced by built-in coverage support
@@ -65,6 +83,7 @@ Example: `Verify.MSTest` → `Verify.TUnit`
 ### 4. `.csproj` PackageReference Updates
 
 For each `.csproj` file:
+
 - Removes `<PackageReference>` entries for removed packages
 - Renames `<PackageReference>` entries for migrated extension packages
 - Adds `<PackageReference Include="TUnit" />` if any test references were modified
@@ -75,6 +94,7 @@ For each `.csproj` file:
 ### 5. YML CI File Migration
 
 Transforms `dotnet test` commands in `.yml` files:
+
 ```yaml
 # Before
 - run: dotnet test src --configuration Release
@@ -102,7 +122,7 @@ The tool automatically runs `dotnet format analyzers` with the appropriate TUnit
 |-----------|-----------|
 | MSTest | `TUMS0001` |
 | NUnit | `TUNU0001` |
-| xUnit / xUnit v3 | `TUXU0001` |
+| xUnit  | `TUXU0001` |
 
 This step runs after TUnit is added but before old framework packages are removed, so the project can still compile during analysis.
 
