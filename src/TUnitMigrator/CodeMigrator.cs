@@ -1,21 +1,9 @@
 static class CodeMigrator
 {
-    static readonly Dictionary<TestFramework, string> diagnosticIds = new()
-    {
-        [TestFramework.MSTest] = "TUMS0001",
-        [TestFramework.NUnit] = "TUNU0001",
-        [TestFramework.Xunit] = "TUXU0001",
-        [TestFramework.XunitV3] = "TUXU0001"
-    };
+    const string diagnosticIds = "TUMS0001 TUNU0001 TUXU0001";
 
-    public static async Task Migrate(string projectRoot, TestFramework framework)
+    public static async Task Migrate(string projectRoot)
     {
-        if (!diagnosticIds.TryGetValue(framework, out var diagnosticId))
-        {
-            Log.Warning("No code migration diagnostic for framework {Framework}", framework);
-            return;
-        }
-
         var solutionFile = FindSolutionFileRecursive(projectRoot);
 
         if (solutionFile == null)
@@ -24,14 +12,14 @@ static class CodeMigrator
             return;
         }
 
-        Log.Information("Running dotnet format analyzers with {DiagnosticId} on {Solution}", diagnosticId, solutionFile);
+        Log.Information("Running dotnet format analyzers with {DiagnosticIds} on {Solution}", diagnosticIds, solutionFile);
 
         using var process = new Process
         {
             StartInfo = new()
             {
                 FileName = "dotnet",
-                Arguments = $"format analyzers \"{solutionFile}\" --severity info --diagnostics {diagnosticId}",
+                Arguments = $"format analyzers \"{solutionFile}\" --severity info --diagnostics {diagnosticIds}",
                 WorkingDirectory = projectRoot,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,

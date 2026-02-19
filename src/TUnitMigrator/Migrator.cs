@@ -82,7 +82,7 @@ static class Migrator
         await TUnitAdder.AddToCsprojs(projectRoot);
 
         // Run CodeMigrator (dotnet format analyzers) while both old and new frameworks are present
-        await CodeMigrator.Migrate(projectRoot, framework);
+        await CodeMigrator.Migrate(projectRoot);
 
         // Run PackagesMigrator (removes old framework packages, handles extensions)
         var migrations = await PackagesMigrator.Migrate(propsPath, tunitVersion, sources, cache);
