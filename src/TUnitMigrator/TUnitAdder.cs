@@ -28,9 +28,10 @@ static class TUnitAdder
         return XmlHelper.Save(xml, propsPath, newLine, hasTrailingNewline);
     }
 
-    public static async Task AddToCsprojs(string directory, TestFramework framework)
+    static readonly List<string> testFrameworkPrefixes = ["MSTest", "Microsoft.Testing.", "NUnit", "xunit"];
+
+    public static async Task AddToCsprojs(string directory)
     {
-        var prefixes = FrameworkDetector.GetPackagePrefixesToRemove(framework);
         var csprojFiles = FileSystem.EnumerateFiles(directory, "*.csproj");
 
         foreach (var csprojPath in csprojFiles)
@@ -39,7 +40,7 @@ static class TUnitAdder
 
             // Only add to csprojs that reference the old test framework
             var refsOldFramework = csprojXml.Descendants("PackageReference")
-                .Any(_ => prefixes.Any(prefix => (_.Attribute("Include")?.Value ?? "").StartsWith(prefix, StringComparison.OrdinalIgnoreCase)));
+                .Any(_ => testFrameworkPrefixes.Any(prefix => (_.Attribute("Include")?.Value ?? "").StartsWith(prefix, StringComparison.OrdinalIgnoreCase)));
             if (!refsOldFramework)
             {
                 continue;

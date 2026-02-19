@@ -11,11 +11,17 @@ static class PackagesMigrator
         "Microsoft.CodeCoverage"
     };
 
-    static readonly List<string> alwaysRemovePrefixes = ["Microsoft.TestPlatform."];
+    static readonly List<string> removePrefixes =
+    [
+        "MSTest",
+        "Microsoft.Testing.",
+        "Microsoft.TestPlatform.",
+        "NUnit",
+        "xunit"
+    ];
 
     public static async Task<List<(string OldPackage, string NewPackage)>> Migrate(
         string propsPath,
-        TestFramework framework,
         NuGetVersion tunitVersion,
         List<PackageSource> sources,
         SourceCacheContext cache)
@@ -23,7 +29,6 @@ static class PackagesMigrator
         var (newLine, hasTrailingNewline) = XmlHelper.DetectNewLineInfo(propsPath);
         var xml = XDocument.Load(propsPath);
         var migrations = new List<(string OldPackage, string NewPackage)>();
-        var prefixesToRemove = FrameworkDetector.GetPackagePrefixesToRemove(framework);
 
         var packageVersions = xml.Descendants("PackageVersion").ToList();
 
@@ -37,8 +42,7 @@ static class PackagesMigrator
             }
 
             if (alwaysRemove.Contains(name) ||
-                alwaysRemovePrefixes.Any(prefix => name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)) ||
-                prefixesToRemove.Any(prefix => name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)))
+                removePrefixes.Any(prefix => name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)))
             {
                 Log.Information("Removing package {Package} from Directory.Packages.props", name);
                 migrations.Add((name, ""));

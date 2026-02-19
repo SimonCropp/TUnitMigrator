@@ -3,8 +3,7 @@ public class PackagesMigratorTests
     static readonly NuGetVersion tunitVersion = new("1.15.11");
 
     static async Task<(string result, List<(string OldPackage, string NewPackage)> migrations)> RunMigrate(
-        string propsContent,
-        TestFramework framework)
+        string propsContent)
     {
         using var tempDir = new TempDirectory();
         var propsPath = Path.Combine(tempDir, "Directory.Packages.props");
@@ -13,7 +12,7 @@ public class PackagesMigratorTests
         var sources = PackageSourceReader.Read(tempDir);
         using var cache = new SourceCacheContext { RefreshMemoryCache = true };
 
-        var migrations = await PackagesMigrator.Migrate(propsPath, framework, tunitVersion, sources, cache);
+        var migrations = await PackagesMigrator.Migrate(propsPath, tunitVersion, sources, cache);
         var result = await File.ReadAllTextAsync(propsPath);
 
         return (result, migrations);
@@ -36,8 +35,7 @@ public class PackagesMigratorTests
                 <PackageVersion Include="Microsoft.Testing.Extensions.CodeCoverage" Version="17.12.0" />
               </ItemGroup>
             </Project>
-            """,
-            TestFramework.MSTest);
+            """);
 
         await Assert.That(result).DoesNotContain("MSTest.TestFramework");
         await Assert.That(result).DoesNotContain("MSTest.TestAdapter");
@@ -64,8 +62,7 @@ public class PackagesMigratorTests
                 <PackageVersion Include="NUnit.Console" Version="3.18.3" />
               </ItemGroup>
             </Project>
-            """,
-            TestFramework.NUnit);
+            """);
 
         await Assert.That(result).DoesNotContain("NUnit");
         await Assert.That(result).DoesNotContain("NUnit3TestAdapter");
@@ -92,8 +89,7 @@ public class PackagesMigratorTests
                 <PackageVersion Include="xunit.extensibility.execution" Version="2.9.3" />
               </ItemGroup>
             </Project>
-            """,
-            TestFramework.Xunit);
+            """);
 
         await Assert.That(result).DoesNotContain("xunit");
         await Assert.That(result).DoesNotContain("xunit.runner.visualstudio");
@@ -117,8 +113,7 @@ public class PackagesMigratorTests
                 <PackageVersion Include="xunit.runner.visualstudio" Version="3.0.2" />
               </ItemGroup>
             </Project>
-            """,
-            TestFramework.XunitV3);
+            """);
 
         await Assert.That(result).DoesNotContain("xunit.v3");
         await Assert.That(result).DoesNotContain("xunit.runner.visualstudio");
@@ -144,8 +139,7 @@ public class PackagesMigratorTests
                 <PackageVersion Include="Microsoft.TestPlatform.TestHost" Version="17.12.0" />
               </ItemGroup>
             </Project>
-            """,
-            TestFramework.Xunit);
+            """);
 
         await Assert.That(result).DoesNotContain("coverlet.collector");
         await Assert.That(result).DoesNotContain("coverlet.msbuild");
@@ -168,8 +162,7 @@ public class PackagesMigratorTests
                 <PackageVersion Include="NUnit" Version="4.3.2" />
               </ItemGroup>
             </Project>
-            """,
-            TestFramework.NUnit);
+            """);
 
         await Assert.That(result).Contains("""<PackageVersion Include="TUnit" Version="1.15.11" />""");
     }
@@ -188,8 +181,7 @@ public class PackagesMigratorTests
                 <PackageVersion Include="TUnit" Version="1.0.0" />
               </ItemGroup>
             </Project>
-            """,
-            TestFramework.NUnit);
+            """);
 
         var tunitCount = result.Split("TUnit").Length - 1;
         await Assert.That(tunitCount).IsEqualTo(1);
@@ -209,8 +201,7 @@ public class PackagesMigratorTests
                 <PackageVersion Include="Verify.MSTest" Version="31.13.0" />
               </ItemGroup>
             </Project>
-            """,
-            TestFramework.MSTest);
+            """);
 
         await Assert.That(result).DoesNotContain("Verify.MSTest");
         await Assert.That(result).Contains("Verify.TUnit");
@@ -232,8 +223,7 @@ public class PackagesMigratorTests
                 <PackageVersion Include="Serilog" Version="4.3.1" />
               </ItemGroup>
             </Project>
-            """,
-            TestFramework.NUnit);
+            """);
 
         await Assert.That(result).Contains("Newtonsoft.Json");
         await Assert.That(result).Contains("Serilog");
@@ -253,8 +243,7 @@ public class PackagesMigratorTests
                 <PackageVersion Include="xunit" Version="2.9.3" />
               </ItemGroup>
             </Project>
-            """,
-            TestFramework.Xunit);
+            """);
 
         await Assert.That(result).DoesNotContain("xUnit1013");
         await Assert.That(result).DoesNotContain("xUnit1051");
@@ -275,8 +264,7 @@ public class PackagesMigratorTests
                 <PackageVersion Include="coverlet.collector" Version="6.0.4" />
               </ItemGroup>
             </Project>
-            """,
-            TestFramework.Xunit);
+            """);
 
         await Assert.That(migrations).Contains(m => m is {OldPackage: "xunit", NewPackage: ""});
         await Assert.That(migrations).Contains(m => m is {OldPackage: "coverlet.collector", NewPackage: ""});

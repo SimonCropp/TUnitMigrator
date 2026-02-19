@@ -9,16 +9,6 @@ enum TestFramework
 
 static class FrameworkDetector
 {
-    public static List<string> GetPackagePrefixesToRemove(TestFramework framework) =>
-        framework switch
-        {
-            TestFramework.MSTest => ["MSTest", "Microsoft.Testing."],
-            TestFramework.NUnit => ["NUnit"],
-            TestFramework.Xunit => ["xunit"],
-            TestFramework.XunitV3 => ["xunit"],
-            _ => []
-        };
-
     public static TestFramework Detect(XDocument propsXml)
     {
         var packageNames = propsXml
