@@ -12,10 +12,19 @@ static class FrameworkDetector
     public static HashSet<string> GetPackageNames(TestFramework framework) =>
         framework switch
         {
-            TestFramework.MSTest => new(StringComparer.OrdinalIgnoreCase) { "MSTest", "MSTest.TestFramework", "MSTest.TestAdapter" },
-            TestFramework.NUnit => new(StringComparer.OrdinalIgnoreCase) { "NUnit", "NUnit3TestAdapter" },
-            TestFramework.Xunit => new(StringComparer.OrdinalIgnoreCase) { "xunit", "xunit.runner.visualstudio" },
-            TestFramework.XunitV3 => new(StringComparer.OrdinalIgnoreCase) { "xunit.v3", "xunit.runner.visualstudio" },
+            TestFramework.MSTest => new(StringComparer.OrdinalIgnoreCase) { "MSTest", "MSTest.TestFramework", "MSTest.TestAdapter", "MSTest.Analyzers" },
+            TestFramework.NUnit => new(StringComparer.OrdinalIgnoreCase) { "NUnit", "NUnit3TestAdapter", "NUnit.ConsoleRunner", "NUnit.Analyzers", "NUnit.Console" },
+            TestFramework.Xunit => new(StringComparer.OrdinalIgnoreCase) { "xunit", "xunit.runner.visualstudio", "xunit.abstractions" },
+            TestFramework.XunitV3 => new(StringComparer.OrdinalIgnoreCase) { "xunit.v3", "xunit.runner.visualstudio", "xunit.abstractions" },
+            _ => []
+        };
+
+    public static List<string> GetPackagePrefixesToRemove(TestFramework framework) =>
+        framework switch
+        {
+            TestFramework.MSTest => ["Microsoft.Testing."],
+            TestFramework.Xunit => ["xunit.extensibility."],
+            TestFramework.XunitV3 => ["xunit.extensibility."],
             _ => []
         };
 

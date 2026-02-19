@@ -7,8 +7,11 @@ static class PackagesMigrator
     {
         "coverlet.collector",
         "coverlet.msbuild",
-        "Microsoft.NET.Test.Sdk"
+        "Microsoft.NET.Test.Sdk",
+        "Microsoft.CodeCoverage"
     };
+
+    static readonly List<string> alwaysRemovePrefixes = ["Microsoft.TestPlatform."];
 
     static HashSet<string> GetFrameworkPackagesToRemove(TestFramework framework) =>
         FrameworkDetector.GetPackageNames(framework);
@@ -30,6 +33,8 @@ static class PackagesMigrator
             allRemove.Add(pkg);
         }
 
+        var prefixesToRemove = FrameworkDetector.GetPackagePrefixesToRemove(framework);
+
         var packageVersions = xml.Descendants("PackageVersion").ToList();
 
         // Remove framework-specific and always-remove packages
@@ -41,7 +46,9 @@ static class PackagesMigrator
                 continue;
             }
 
-            if (allRemove.Contains(name))
+            if (allRemove.Contains(name) ||
+                alwaysRemovePrefixes.Any(prefix => name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)) ||
+                prefixesToRemove.Any(prefix => name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)))
             {
                 Log.Information("Removing package {Package} from Directory.Packages.props", name);
                 migrations.Add((name, ""));

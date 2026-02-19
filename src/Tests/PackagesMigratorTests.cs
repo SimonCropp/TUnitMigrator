@@ -32,6 +32,8 @@ public class PackagesMigratorTests
                 <PackageVersion Include="MSTest" Version="3.7.3" />
                 <PackageVersion Include="MSTest.TestFramework" Version="3.7.3" />
                 <PackageVersion Include="MSTest.TestAdapter" Version="3.7.3" />
+                <PackageVersion Include="MSTest.Analyzers" Version="3.7.3" />
+                <PackageVersion Include="Microsoft.Testing.Extensions.CodeCoverage" Version="17.12.0" />
               </ItemGroup>
             </Project>
             """,
@@ -39,8 +41,10 @@ public class PackagesMigratorTests
 
         await Assert.That(result).DoesNotContain("MSTest.TestFramework");
         await Assert.That(result).DoesNotContain("MSTest.TestAdapter");
+        await Assert.That(result).DoesNotContain("MSTest.Analyzers");
+        await Assert.That(result).DoesNotContain("Microsoft.Testing.Extensions.CodeCoverage");
         await Assert.That(result).Contains("TUnit");
-        await Assert.That(migrations.Where(_ => _.NewPackage == "")).Count().IsGreaterThanOrEqualTo(3);
+        await Assert.That(migrations.Where(_ => _.NewPackage == "")).Count().IsGreaterThanOrEqualTo(5);
     }
 
     [Test]
@@ -55,6 +59,9 @@ public class PackagesMigratorTests
               <ItemGroup>
                 <PackageVersion Include="NUnit" Version="4.3.2" />
                 <PackageVersion Include="NUnit3TestAdapter" Version="4.6.0" />
+                <PackageVersion Include="NUnit.ConsoleRunner" Version="3.18.3" />
+                <PackageVersion Include="NUnit.Analyzers" Version="4.5.0" />
+                <PackageVersion Include="NUnit.Console" Version="3.18.3" />
               </ItemGroup>
             </Project>
             """,
@@ -62,6 +69,9 @@ public class PackagesMigratorTests
 
         await Assert.That(result).DoesNotContain("NUnit");
         await Assert.That(result).DoesNotContain("NUnit3TestAdapter");
+        await Assert.That(result).DoesNotContain("NUnit.ConsoleRunner");
+        await Assert.That(result).DoesNotContain("NUnit.Analyzers");
+        await Assert.That(result).DoesNotContain("NUnit.Console");
         await Assert.That(result).Contains("TUnit");
     }
 
@@ -77,6 +87,9 @@ public class PackagesMigratorTests
               <ItemGroup>
                 <PackageVersion Include="xunit" Version="2.9.3" />
                 <PackageVersion Include="xunit.runner.visualstudio" Version="3.0.2" />
+                <PackageVersion Include="xunit.abstractions" Version="2.0.3" />
+                <PackageVersion Include="xunit.extensibility.core" Version="2.9.3" />
+                <PackageVersion Include="xunit.extensibility.execution" Version="2.9.3" />
               </ItemGroup>
             </Project>
             """,
@@ -84,6 +97,9 @@ public class PackagesMigratorTests
 
         await Assert.That(result).DoesNotContain("xunit");
         await Assert.That(result).DoesNotContain("xunit.runner.visualstudio");
+        await Assert.That(result).DoesNotContain("xunit.abstractions");
+        await Assert.That(result).DoesNotContain("xunit.extensibility.core");
+        await Assert.That(result).DoesNotContain("xunit.extensibility.execution");
         await Assert.That(result).Contains("TUnit");
     }
 
@@ -123,6 +139,9 @@ public class PackagesMigratorTests
                 <PackageVersion Include="coverlet.collector" Version="6.0.4" />
                 <PackageVersion Include="coverlet.msbuild" Version="6.0.4" />
                 <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+                <PackageVersion Include="Microsoft.CodeCoverage" Version="17.12.0" />
+                <PackageVersion Include="Microsoft.TestPlatform.ObjectModel" Version="17.12.0" />
+                <PackageVersion Include="Microsoft.TestPlatform.TestHost" Version="17.12.0" />
               </ItemGroup>
             </Project>
             """,
@@ -131,6 +150,9 @@ public class PackagesMigratorTests
         await Assert.That(result).DoesNotContain("coverlet.collector");
         await Assert.That(result).DoesNotContain("coverlet.msbuild");
         await Assert.That(result).DoesNotContain("Microsoft.NET.Test.Sdk");
+        await Assert.That(result).DoesNotContain("Microsoft.CodeCoverage");
+        await Assert.That(result).DoesNotContain("Microsoft.TestPlatform.ObjectModel");
+        await Assert.That(result).DoesNotContain("Microsoft.TestPlatform.TestHost");
     }
 
     [Test]

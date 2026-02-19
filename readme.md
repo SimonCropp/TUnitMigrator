@@ -35,11 +35,15 @@ Removes the following NuGet packages from `Directory.Packages.props`:
 |--------|-------|-------|----------|
 | `MSTest` | `NUnit` | `xunit` | `xunit.v3` |
 | `MSTest.TestFramework` | `NUnit3TestAdapter` | `xunit.runner.visualstudio` | `xunit.runner.visualstudio` |
-| `MSTest.TestAdapter` | | | |
+| `MSTest.TestAdapter` | `NUnit.ConsoleRunner` | `xunit.abstractions` | `xunit.abstractions` |
+| `MSTest.Analyzers` | `NUnit.Analyzers` | `xunit.extensibility.*` | `xunit.extensibility.*` |
+| `Microsoft.Testing.*` | `NUnit.Console` | | |
 
 **Always removed** (all frameworks):
 - `coverlet.collector`, `coverlet.msbuild` — [Coverlet is unnecessary](https://learn.microsoft.com/en-us/dotnet/core/testing/microsoft-testing-platform-extensions-code-coverage) because Microsoft.Testing.Platform (used by TUnit) has built-in code coverage support via `--coverage`
 - `Microsoft.NET.Test.Sdk` — the VSTest runner glue, replaced by [Microsoft.Testing.Platform](https://learn.microsoft.com/en-us/dotnet/core/testing/microsoft-testing-platform-intro)
+- `Microsoft.CodeCoverage` — replaced by built-in coverage support
+- `Microsoft.TestPlatform.*` — VSTest platform packages, no longer needed
 
 
 ### 2. TUnit Package Addition
