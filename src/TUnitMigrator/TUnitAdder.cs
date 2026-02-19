@@ -30,7 +30,7 @@ static class TUnitAdder
 
     public static async Task AddToCsprojs(string directory, TestFramework framework)
     {
-        var frameworkPackages = FrameworkDetector.GetPackageNames(framework);
+        var prefixes = FrameworkDetector.GetPackagePrefixesToRemove(framework);
         var csprojFiles = FileSystem.EnumerateFiles(directory, "*.csproj");
 
         foreach (var csprojPath in csprojFiles)
@@ -39,7 +39,7 @@ static class TUnitAdder
 
             // Only add to csprojs that reference the old test framework
             var refsOldFramework = csprojXml.Descendants("PackageReference")
-                .Any(_ => frameworkPackages.Contains(_.Attribute("Include")?.Value ?? "", StringComparer.OrdinalIgnoreCase));
+                .Any(_ => prefixes.Any(prefix => (_.Attribute("Include")?.Value ?? "").StartsWith(prefix, StringComparison.OrdinalIgnoreCase)));
             if (!refsOldFramework)
             {
                 continue;

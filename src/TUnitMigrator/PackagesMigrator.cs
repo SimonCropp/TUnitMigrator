@@ -13,9 +13,6 @@ static class PackagesMigrator
 
     static readonly List<string> alwaysRemovePrefixes = ["Microsoft.TestPlatform."];
 
-    static HashSet<string> GetFrameworkPackagesToRemove(TestFramework framework) =>
-        FrameworkDetector.GetPackageNames(framework);
-
     public static async Task<List<(string OldPackage, string NewPackage)>> Migrate(
         string propsPath,
         TestFramework framework,
@@ -26,13 +23,6 @@ static class PackagesMigrator
         var (newLine, hasTrailingNewline) = XmlHelper.DetectNewLineInfo(propsPath);
         var xml = XDocument.Load(propsPath);
         var migrations = new List<(string OldPackage, string NewPackage)>();
-        var frameworkPackages = GetFrameworkPackagesToRemove(framework);
-        var allRemove = new HashSet<string>(alwaysRemove, StringComparer.OrdinalIgnoreCase);
-        foreach (var pkg in frameworkPackages)
-        {
-            allRemove.Add(pkg);
-        }
-
         var prefixesToRemove = FrameworkDetector.GetPackagePrefixesToRemove(framework);
 
         var packageVersions = xml.Descendants("PackageVersion").ToList();
@@ -46,7 +36,7 @@ static class PackagesMigrator
                 continue;
             }
 
-            if (allRemove.Contains(name) ||
+            if (alwaysRemove.Contains(name) ||
                 alwaysRemovePrefixes.Any(prefix => name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)) ||
                 prefixesToRemove.Any(prefix => name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)))
             {
