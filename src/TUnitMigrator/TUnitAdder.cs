@@ -49,23 +49,46 @@ static class TUnitAdder
             var hasTUnit = csprojXml.Descendants("PackageReference")
                 .Any(_ => string.Equals(_.Attribute("Include")?.Value, "TUnit", StringComparison.OrdinalIgnoreCase));
 
-            if (hasTUnit)
-            {
-                continue;
-            }
-
             var (newLine, hasTrailingNewline) = XmlHelper.DetectNewLineInfo(csprojPath);
-            var itemGroup = csprojXml.Descendants("ItemGroup")
-                .FirstOrDefault(_ => _.Descendants("PackageReference").Any());
+            var changed = false;
 
-            if (itemGroup == null)
+            if (!hasTUnit)
             {
-                continue;
+                var itemGroup = csprojXml.Descendants("ItemGroup")
+                    .FirstOrDefault(_ => _.Descendants("PackageReference").Any());
+
+                if (itemGroup == null)
+                {
+                    continue;
+                }
+
+                itemGroup.Add(new XElement("PackageReference", new XAttribute("Include", "TUnit")));
+                Log.Information("Added PackageReference TUnit to {File}", Path.GetFileName(csprojPath));
+                changed = true;
             }
 
-            itemGroup.Add(new XElement("PackageReference", new XAttribute("Include", "TUnit")));
-            Log.Information("Added PackageReference TUnit to {File}", Path.GetFileName(csprojPath));
-            await XmlHelper.Save(csprojXml, csprojPath, newLine, hasTrailingNewline);
+            var outputType = csprojXml.Descendants("OutputType").FirstOrDefault();
+            if (outputType == null)
+            {
+                var propertyGroup = csprojXml.Descendants("PropertyGroup").FirstOrDefault();
+                if (propertyGroup != null)
+                {
+                    propertyGroup.Add(new XElement("OutputType", "Exe"));
+                    Log.Information("Added OutputType Exe to {File}", Path.GetFileName(csprojPath));
+                    changed = true;
+                }
+            }
+            else if (!string.Equals(outputType.Value, "Exe", StringComparison.OrdinalIgnoreCase))
+            {
+                outputType.Value = "Exe";
+                Log.Information("Set OutputType to Exe in {File}", Path.GetFileName(csprojPath));
+                changed = true;
+            }
+
+            if (changed)
+            {
+                await XmlHelper.Save(csprojXml, csprojPath, newLine, hasTrailingNewline);
+            }
         }
     }
 }

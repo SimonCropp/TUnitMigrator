@@ -68,6 +68,7 @@ For each `.csproj` file:
 - Removes `<PackageReference>` entries for removed packages
 - Renames `<PackageReference>` entries for migrated extension packages
 - Adds `<PackageReference Include="TUnit" />` if any test references were modified
+- Sets `<OutputType>Exe</OutputType>` on test projects (required by TUnit). If the element is missing it is added to the first `<PropertyGroup>`; if present with a different value it is changed to `Exe`
 - Scrubs xUnit `NoWarn` suppressions from `<NoWarn>` elements (e.g. `xUnit1013`, `xUnit1051`). If all entries in a `<NoWarn>` element are xUnit warnings, the entire element is removed
 
 
