@@ -14,18 +14,19 @@ public class FrameworkDetectorTests
     }
 
     [Test]
-    [Arguments("MSTest", "MSTest")]
-    [Arguments("MSTest.TestFramework", "MSTest")]
-    [Arguments("MSTest.TestAdapter", "MSTest")]
-    [Arguments("MSTEST", "MSTest")]
-    [Arguments("NUnit", "NUnit")]
-    [Arguments("xunit", "Xunit")]
-    [Arguments("xunit.v3", "XunitV3")]
-    [Arguments("Newtonsoft.Json", "None")]
-    public async Task Detect(string packageName, string expected) =>
-        await Assert.That(FrameworkDetector.Detect(Props(packageName))).IsEqualTo(Enum.Parse<TestFramework>(expected));
+    [Arguments("MSTest")]
+    [Arguments("MSTest.TestFramework")]
+    [Arguments("MSTest.TestAdapter")]
+    [Arguments("MSTEST")]
+    [Arguments("NUnit")]
+    [Arguments("xunit")]
+    [Arguments("xunit.v3")]
+    public async Task DetectsTestFramework(string packageName) =>
+        await Assert.That(FrameworkDetector.HasTestFramework(Props(packageName))).IsTrue();
 
     [Test]
-    public async Task XunitV3TakesPriorityOverXunit() =>
-        await Assert.That(FrameworkDetector.Detect(Props("xunit", "xunit.v3"))).IsEqualTo(TestFramework.XunitV3);
+    [Arguments("Newtonsoft.Json")]
+    [Arguments("Serilog")]
+    public async Task NoTestFrameworkDetected(string packageName) =>
+        await Assert.That(FrameworkDetector.HasTestFramework(Props(packageName))).IsFalse();
 }

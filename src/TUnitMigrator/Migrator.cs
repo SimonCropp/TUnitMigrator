@@ -55,15 +55,11 @@ static class Migrator
             return;
         }
 
-        // Detect test framework
-        var framework = FrameworkDetector.Detect(propsXml);
-        if (framework == TestFramework.None)
+        if (!FrameworkDetector.HasTestFramework(propsXml))
         {
             Log.Warning("No test framework detected in {Props}", propsPath);
             return;
         }
-
-        Log.Information("Detected test framework: {Framework}", framework);
 
         // Query NuGet for latest TUnit version
         var sources = PackageSourceReader.Read(projectRoot);
