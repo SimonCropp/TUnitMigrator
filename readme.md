@@ -114,6 +114,20 @@ If no `global.json` exists, one is created at the project root. If exactly one i
 - References to the old `global.json` path in `.sln` and `.slnx` solution files are patched to point to the new location (`.slnx` uses forward slashes, `.sln` uses backslashes)
 
 
+#### Reason
+
+The directory that `dotnet test` is executed from must contain the global.json with the `"test": { "runner": "Microsoft.Testing.Platform" }` node.
+
+If this is not the case the following error will occur
+
+```
+dotnet test --solution src/TheSolution.slnx
+MSBUILD : error MSB1001: Unknown switch.
+  Switches appended by response files:
+Switch: --solution
+```
+
+
 ### 7. C# Source Code Migration
 
 The tool automatically runs `dotnet format analyzers` with the appropriate TUnit diagnostic to migrate C# source code (attributes, assertions, etc.):
