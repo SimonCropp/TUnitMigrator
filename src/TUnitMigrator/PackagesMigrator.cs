@@ -89,6 +89,64 @@ static class PackagesMigrator
             }
         }
 
+        // Handle PackageReference entries in conditional ItemGroups (e.g. test project conditions)
+        var packageReferences = xml.Descendants("PackageReference").ToList();
+        var addTUnitRef = false;
+        foreach (var element in packageReferences)
+        {
+            var name = element.Attribute("Include")?.Value;
+            if (name == null)
+            {
+                continue;
+            }
+
+            if (alwaysRemove.Contains(name) ||
+                removePrefixes.Any(prefix => name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)))
+            {
+                Log.Information("Removing PackageReference {Package} from Directory.Packages.props", name);
+                addTUnitRef = true;
+                element.Remove();
+            }
+        }
+
+        // Rename extension PackageReferences
+        packageReferences = xml.Descendants("PackageReference").ToList();
+        foreach (var element in packageReferences)
+        {
+            var name = element.Attribute("Include")?.Value;
+            if (name == null)
+            {
+                continue;
+            }
+
+            var migration = migrations.FirstOrDefault(_ => string.Equals(_.OldPackage, name, StringComparison.OrdinalIgnoreCase));
+            if (migration != default && !string.IsNullOrEmpty(migration.NewPackage))
+            {
+                Log.Information("Updating PackageReference {Old} -> {New} in Directory.Packages.props", name, migration.NewPackage);
+                element.SetAttributeValue("Include", migration.NewPackage);
+            }
+        }
+
+        // Add TUnit PackageReference if any were removed and TUnit ref doesn't already exist
+        if (addTUnitRef)
+        {
+            var hasTUnitRef = xml.Descendants("PackageReference")
+                .Any(_ => string.Equals(_.Attribute("Include")?.Value, "TUnit", StringComparison.OrdinalIgnoreCase));
+
+            if (!hasTUnitRef)
+            {
+                // Find first ItemGroup that had PackageReference entries (conditional block)
+                var refItemGroup = xml.Descendants("ItemGroup")
+                    .FirstOrDefault(_ => _.Descendants("PackageReference").Any())
+                    ?? xml.Descendants("ItemGroup").FirstOrDefault();
+                if (refItemGroup != null)
+                {
+                    refItemGroup.Add(new XElement("PackageReference", new XAttribute("Include", "TUnit")));
+                    Log.Information("Added PackageReference TUnit to Directory.Packages.props");
+                }
+            }
+        }
+
         NoWarnScrubber.ScrubXunitNoWarns(xml);
 
         await XmlHelper.Save(xml, propsPath, newLine, hasTrailingNewline);

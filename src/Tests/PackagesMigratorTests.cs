@@ -251,6 +251,84 @@ public class PackagesMigratorTests
     }
 
     [Test]
+    public async Task RemovesPackageReferencesInConditionalItemGroup()
+    {
+        var (result, _) = await RunMigrate(
+            """
+            <Project>
+              <PropertyGroup>
+                <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+              </PropertyGroup>
+              <ItemGroup>
+                <PackageVersion Include="xunit" Version="2.9.3" />
+                <PackageVersion Include="coverlet.collector" Version="6.0.4" />
+                <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+              </ItemGroup>
+              <ItemGroup Condition="'$(IsTestProject)' == 'true'">
+                <PackageReference Include="xunit" />
+                <PackageReference Include="coverlet.collector" />
+                <PackageReference Include="Microsoft.NET.Test.Sdk" />
+              </ItemGroup>
+            </Project>
+            """);
+
+        await Assert.That(result).DoesNotContain("""<PackageReference Include="xunit" />""");
+        await Assert.That(result).DoesNotContain("""<PackageReference Include="coverlet.collector" />""");
+        await Assert.That(result).DoesNotContain("""<PackageReference Include="Microsoft.NET.Test.Sdk" />""");
+        await Assert.That(result).Contains("""<PackageReference Include="TUnit" />""");
+    }
+
+    [Test]
+    public async Task RenamesExtensionPackageReferencesInConditionalItemGroup()
+    {
+        var (result, _) = await RunMigrate(
+            """
+            <Project>
+              <PropertyGroup>
+                <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+              </PropertyGroup>
+              <ItemGroup>
+                <PackageVersion Include="MSTest" Version="3.7.3" />
+                <PackageVersion Include="Verify.MSTest" Version="31.13.0" />
+              </ItemGroup>
+              <ItemGroup Condition="'$(IsTestProject)' == 'true'">
+                <PackageReference Include="MSTest" />
+                <PackageReference Include="Verify.MSTest" />
+              </ItemGroup>
+            </Project>
+            """);
+
+        await Assert.That(result).DoesNotContain("""<PackageReference Include="MSTest" />""");
+        await Assert.That(result).DoesNotContain("""<PackageReference Include="Verify.MSTest" />""");
+        await Assert.That(result).Contains("""<PackageReference Include="Verify.TUnit" />""");
+        await Assert.That(result).Contains("""<PackageReference Include="TUnit" />""");
+    }
+
+    [Test]
+    public async Task PreservesUnrelatedPackageReferencesInConditionalItemGroup()
+    {
+        var (result, _) = await RunMigrate(
+            """
+            <Project>
+              <PropertyGroup>
+                <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+              </PropertyGroup>
+              <ItemGroup>
+                <PackageVersion Include="xunit" Version="2.9.3" />
+                <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
+              </ItemGroup>
+              <ItemGroup Condition="'$(IsTestProject)' == 'true'">
+                <PackageReference Include="xunit" />
+                <PackageReference Include="Newtonsoft.Json" />
+              </ItemGroup>
+            </Project>
+            """);
+
+        await Assert.That(result).DoesNotContain("""<PackageReference Include="xunit" />""");
+        await Assert.That(result).Contains("""<PackageReference Include="Newtonsoft.Json" />""");
+    }
+
+    [Test]
     public async Task ReturnsMigrationsForRemovedPackages()
     {
         var (_, migrations) = await RunMigrate(
