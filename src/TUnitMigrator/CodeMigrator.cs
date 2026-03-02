@@ -4,68 +4,49 @@ static class CodeMigrator
 
     public static async Task Migrate(string projectRoot)
     {
-        var solutionFile = FindSolutionFileRecursive(projectRoot);
+        var solutionFiles = FileSystem.FindSolutionFiles(projectRoot);
 
-        if (solutionFile == null)
+        if (solutionFiles.Count == 0)
         {
             Log.Warning("No solution file found in {Root}, skipping code migration", projectRoot);
             return;
         }
 
-        Log.Information("Running dotnet format analyzers with {DiagnosticIds} on {Solution}", diagnosticIds, solutionFile);
-
-        using var process = new Process
+        foreach (var solutionFile in solutionFiles)
         {
-            StartInfo = new()
+            Log.Information("Running dotnet format analyzers with {DiagnosticIds} on {Solution}", diagnosticIds, solutionFile);
+
+            using var process = new Process
             {
-                FileName = "dotnet",
-                Arguments = $"format analyzers \"{solutionFile}\" --severity info --diagnostics {diagnosticIds}",
-                WorkingDirectory = projectRoot,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false
+                StartInfo = new()
+                {
+                    FileName = "dotnet",
+                    Arguments = $"format analyzers \"{solutionFile}\" --severity info --diagnostics {diagnosticIds}",
+                    WorkingDirectory = projectRoot,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false
+                }
+            };
+
+            process.Start();
+            var stdout = await process.StandardOutput.ReadToEndAsync();
+            var stderr = await process.StandardError.ReadToEndAsync();
+            await process.WaitForExitAsync();
+
+            if (!string.IsNullOrWhiteSpace(stdout))
+            {
+                Log.Information("dotnet format output: {Output}", stdout.TrimEnd());
             }
-        };
 
-        process.Start();
-        var stdout = await process.StandardOutput.ReadToEndAsync();
-        var stderr = await process.StandardError.ReadToEndAsync();
-        await process.WaitForExitAsync();
-
-        if (!string.IsNullOrWhiteSpace(stdout))
-        {
-            Log.Information("dotnet format output: {Output}", stdout.TrimEnd());
-        }
-
-        if (process.ExitCode != 0)
-        {
-            Log.Error("dotnet format exited with code {ExitCode}: {Error}", process.ExitCode, stderr.TrimEnd());
-        }
-        else
-        {
-            Log.Information("Code migration complete for {Solution}", solutionFile);
-        }
-    }
-
-    static string? FindSolutionFileRecursive(string directory)
-    {
-        // Check each directory level for a solution file, starting from root
-        var solution = FileSystem.FindSolutionFile(directory);
-        if (solution != null)
-        {
-            return solution;
-        }
-
-        // Search subdirectories
-        foreach (var subdir in Directory.EnumerateDirectories(directory))
-        {
-            solution = FileSystem.FindSolutionFile(subdir);
-            if (solution != null)
+            if (process.ExitCode != 0)
             {
-                return solution;
+                Log.Error("dotnet format exited with code {ExitCode}: {Error}", process.ExitCode, stderr.TrimEnd());
+            }
+            else
+            {
+                Log.Information("Code migration complete for {Solution}", solutionFile);
             }
         }
-
-        return null;
     }
 }

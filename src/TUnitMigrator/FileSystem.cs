@@ -71,4 +71,28 @@ static class FileSystem
 
         return Directory.EnumerateFiles(directory, "*.sln", SearchOption.TopDirectoryOnly).FirstOrDefault();
     }
+
+    public static List<string> FindSolutionFiles(string directory)
+    {
+        var results = new List<string>();
+        var visited = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var file in EnumerateFiles(directory, "*.slnx"))
+        {
+            var dir = Path.GetDirectoryName(file)!;
+            visited.Add(dir);
+            results.Add(file);
+        }
+
+        foreach (var file in EnumerateFiles(directory, "*.sln"))
+        {
+            var dir = Path.GetDirectoryName(file)!;
+            if (!visited.Contains(dir))
+            {
+                results.Add(file);
+            }
+        }
+
+        return results;
+    }
 }
