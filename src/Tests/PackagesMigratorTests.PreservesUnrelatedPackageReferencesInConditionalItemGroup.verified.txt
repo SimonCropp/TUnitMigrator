@@ -1,0 +1,13 @@
+﻿<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="Newtonsoft.Json" Version="{Newtonsoft.Json.Version}" />
+    <PackageVersion Include="TUnit" Version="{TUnit.Version}" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(IsTestProject)' == 'true'">
+    <PackageReference Include="Newtonsoft.Json" />
+    <PackageReference Include="TUnit" />
+  </ItemGroup>
+</Project>

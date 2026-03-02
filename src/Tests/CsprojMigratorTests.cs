@@ -24,9 +24,7 @@ public class CsprojMigratorTests
         await CsprojMigrator.Migrate(tempDir, migrations);
 
         var result = await File.ReadAllTextAsync(csproj);
-        await Assert.That(result).DoesNotContain("xunit");
-        await Assert.That(result).Contains("Verify.TUnit");
-        await Assert.That(result).Contains("""<PackageReference Include="TUnit" />""");
+        await Verify(result);
     }
 
     [Test]
@@ -49,8 +47,7 @@ public class CsprojMigratorTests
         await CsprojMigrator.Migrate(tempDir, migrations);
 
         var result = await File.ReadAllTextAsync(csproj);
-        var tunitCount = result.Split("TUnit").Length - 1;
-        await Assert.That(tunitCount).IsEqualTo(1);
+        await Verify(result);
     }
 
     [Test]
@@ -72,10 +69,7 @@ public class CsprojMigratorTests
         await CsprojMigrator.Migrate(tempDir, migrations);
 
         var result = await File.ReadAllTextAsync(csproj);
-        await Assert.That(result).DoesNotContain("Verify.MSTest");
-        await Assert.That(result).Contains("Verify.TUnit");
-        // Rename only — no TUnit PackageReference added
-        await Assert.That(result).DoesNotContain("""<PackageReference Include="TUnit" />""");
+        await Verify(result);
     }
 
     [Test]
@@ -98,8 +92,7 @@ public class CsprojMigratorTests
         await CsprojMigrator.Migrate(tempDir, migrations);
 
         var result = await File.ReadAllTextAsync(csproj);
-        await Assert.That(result).Contains("Newtonsoft.Json");
-        await Assert.That(result).DoesNotContain("xunit");
+        await Verify(result);
     }
 
     [Test]
@@ -122,7 +115,7 @@ public class CsprojMigratorTests
         await CsprojMigrator.Migrate(tempDir, migrations);
 
         var result = await File.ReadAllTextAsync(csproj);
-        await Assert.That(result).IsEqualTo(original);
+        await Verify(result);
     }
 
     [Test]
@@ -147,9 +140,7 @@ public class CsprojMigratorTests
         await CsprojMigrator.Migrate(tempDir, migrations);
 
         var result = await File.ReadAllTextAsync(csproj);
-        await Assert.That(result).DoesNotContain("xUnit1013");
-        await Assert.That(result).DoesNotContain("xUnit1051");
-        await Assert.That(result).Contains("$(NoWarn);CS0649;CS8618;CS0105");
+        await Verify(result);
     }
 
     [Test]
@@ -174,8 +165,7 @@ public class CsprojMigratorTests
         await CsprojMigrator.Migrate(tempDir, migrations);
 
         var result = await File.ReadAllTextAsync(csproj);
-        await Assert.That(result).DoesNotContain("xUnit1013");
-        await Assert.That(result).DoesNotContain("xUnit1051");
+        await Verify(result);
     }
 
     [Test]
@@ -199,7 +189,6 @@ public class CsprojMigratorTests
         await CsprojMigrator.Migrate(tempDir, migrations);
 
         var result = await File.ReadAllTextAsync(csproj);
-        await Assert.That(result).DoesNotContain("MSTest");
-        await Assert.That(result).Contains("""<PackageReference Include="TUnit" />""");
+        await Verify(result);
     }
 }

@@ -37,11 +37,7 @@ public class PackagesMigratorTests
             </Project>
             """);
 
-        await Assert.That(result).DoesNotContain("MSTest.TestFramework");
-        await Assert.That(result).DoesNotContain("MSTest.TestAdapter");
-        await Assert.That(result).DoesNotContain("MSTest.Analyzers");
-        await Assert.That(result).DoesNotContain("Microsoft.Testing.Extensions.CodeCoverage");
-        await Assert.That(result).Contains("TUnit");
+        await Verify(result);
         await Assert.That(migrations.Where(_ => _.NewPackage == "")).Count().IsGreaterThanOrEqualTo(5);
     }
 
@@ -64,12 +60,7 @@ public class PackagesMigratorTests
             </Project>
             """);
 
-        await Assert.That(result).DoesNotContain("NUnit");
-        await Assert.That(result).DoesNotContain("NUnit3TestAdapter");
-        await Assert.That(result).DoesNotContain("NUnit.ConsoleRunner");
-        await Assert.That(result).DoesNotContain("NUnit.Analyzers");
-        await Assert.That(result).DoesNotContain("NUnit.Console");
-        await Assert.That(result).Contains("TUnit");
+        await Verify(result);
     }
 
     [Test]
@@ -91,12 +82,7 @@ public class PackagesMigratorTests
             </Project>
             """);
 
-        await Assert.That(result).DoesNotContain("xunit");
-        await Assert.That(result).DoesNotContain("xunit.runner.visualstudio");
-        await Assert.That(result).DoesNotContain("xunit.abstractions");
-        await Assert.That(result).DoesNotContain("xunit.extensibility.core");
-        await Assert.That(result).DoesNotContain("xunit.extensibility.execution");
-        await Assert.That(result).Contains("TUnit");
+        await Verify(result);
     }
 
     [Test]
@@ -115,9 +101,7 @@ public class PackagesMigratorTests
             </Project>
             """);
 
-        await Assert.That(result).DoesNotContain("xunit.v3");
-        await Assert.That(result).DoesNotContain("xunit.runner.visualstudio");
-        await Assert.That(result).Contains("TUnit");
+        await Verify(result);
     }
 
     [Test]
@@ -141,12 +125,7 @@ public class PackagesMigratorTests
             </Project>
             """);
 
-        await Assert.That(result).DoesNotContain("coverlet.collector");
-        await Assert.That(result).DoesNotContain("coverlet.msbuild");
-        await Assert.That(result).DoesNotContain("Microsoft.NET.Test.Sdk");
-        await Assert.That(result).DoesNotContain("Microsoft.CodeCoverage");
-        await Assert.That(result).DoesNotContain("Microsoft.TestPlatform.ObjectModel");
-        await Assert.That(result).DoesNotContain("Microsoft.TestPlatform.TestHost");
+        await Verify(result);
     }
 
     [Test]
@@ -164,7 +143,7 @@ public class PackagesMigratorTests
             </Project>
             """);
 
-        await Assert.That(result).Contains("""<PackageVersion Include="TUnit" Version="1.15.11" />""");
+        await Verify(result);
     }
 
     [Test]
@@ -183,8 +162,7 @@ public class PackagesMigratorTests
             </Project>
             """);
 
-        var tunitCount = result.Split("TUnit").Length - 1;
-        await Assert.That(tunitCount).IsEqualTo(1);
+        await Verify(result);
     }
 
     [Test]
@@ -203,8 +181,7 @@ public class PackagesMigratorTests
             </Project>
             """);
 
-        await Assert.That(result).DoesNotContain("Verify.MSTest");
-        await Assert.That(result).Contains("Verify.TUnit");
+        await Verify(result);
         await Assert.That(migrations).Contains(m => m is {OldPackage: "Verify.MSTest", NewPackage: "Verify.TUnit"});
     }
 
@@ -225,8 +202,7 @@ public class PackagesMigratorTests
             </Project>
             """);
 
-        await Assert.That(result).Contains("Newtonsoft.Json");
-        await Assert.That(result).Contains("Serilog");
+        await Verify(result);
     }
 
     [Test]
@@ -245,9 +221,7 @@ public class PackagesMigratorTests
             </Project>
             """);
 
-        await Assert.That(result).DoesNotContain("xUnit1013");
-        await Assert.That(result).DoesNotContain("xUnit1051");
-        await Assert.That(result).Contains("$(NoWarn);CS0649;CS8618");
+        await Verify(result);
     }
 
     [Test]
@@ -272,10 +246,7 @@ public class PackagesMigratorTests
             </Project>
             """);
 
-        await Assert.That(result).DoesNotContain("""<PackageReference Include="xunit" />""");
-        await Assert.That(result).DoesNotContain("""<PackageReference Include="coverlet.collector" />""");
-        await Assert.That(result).DoesNotContain("""<PackageReference Include="Microsoft.NET.Test.Sdk" />""");
-        await Assert.That(result).Contains("""<PackageReference Include="TUnit" />""");
+        await Verify(result);
     }
 
     [Test]
@@ -298,10 +269,7 @@ public class PackagesMigratorTests
             </Project>
             """);
 
-        await Assert.That(result).DoesNotContain("""<PackageReference Include="MSTest" />""");
-        await Assert.That(result).DoesNotContain("""<PackageReference Include="Verify.MSTest" />""");
-        await Assert.That(result).Contains("""<PackageReference Include="Verify.TUnit" />""");
-        await Assert.That(result).Contains("""<PackageReference Include="TUnit" />""");
+        await Verify(result);
     }
 
     [Test]
@@ -324,8 +292,7 @@ public class PackagesMigratorTests
             </Project>
             """);
 
-        await Assert.That(result).DoesNotContain("""<PackageReference Include="xunit" />""");
-        await Assert.That(result).Contains("""<PackageReference Include="Newtonsoft.Json" />""");
+        await Verify(result);
     }
 
     [Test]

@@ -1,0 +1,10 @@
+﻿<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="TUnit" Version="{TUnit.Version}" />
+    <PackageReference Include="TUnit" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(IsTestProject)' == 'true'" />
+</Project>

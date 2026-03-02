@@ -1,0 +1,9 @@
+﻿<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <NoWarn>$(NoWarn);CS0649;CS8618</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="TUnit" Version="{TUnit.Version}" />
+  </ItemGroup>
+</Project>
