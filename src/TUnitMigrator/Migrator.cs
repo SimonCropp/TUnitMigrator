@@ -45,11 +45,12 @@ static class Migrator
         var propsPath = propsFiles[0];
         var propsXml = XDocument.Load(propsPath);
 
-        // Validate CPM is enabled
+        // Validate CPM is enabled (check Directory.Packages.props first, then Directory.Build.props)
         var cpmEnabled = propsXml.Descendants("ManagePackageVersionsCentrally")
             .FirstOrDefault()?.Value;
 
-        if (!string.Equals(cpmEnabled, "true", StringComparison.OrdinalIgnoreCase))
+        if (!string.Equals(cpmEnabled, "true", StringComparison.OrdinalIgnoreCase) &&
+            !FileSystem.IsCpmEnabled(projectRoot))
         {
             Log.Error("Central Package Management is not enabled in {Props}", propsPath);
             return;

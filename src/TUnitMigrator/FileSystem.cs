@@ -72,6 +72,29 @@ static class FileSystem
         return Directory.EnumerateFiles(directory, "*.sln", SearchOption.TopDirectoryOnly).FirstOrDefault();
     }
 
+    public static bool IsCpmEnabled(string directory)
+    {
+        var current = new DirectoryInfo(directory);
+        while (current != null)
+        {
+            var buildProps = Path.Combine(current.FullName, "Directory.Build.props");
+            if (File.Exists(buildProps))
+            {
+                var xml = XDocument.Load(buildProps);
+                var value = xml.Descendants("ManagePackageVersionsCentrally")
+                    .FirstOrDefault()?.Value;
+                if (string.Equals(value, "true", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            current = current.Parent;
+        }
+
+        return false;
+    }
+
     public static List<string> FindSolutionFiles(string directory)
     {
         var results = new List<string>();

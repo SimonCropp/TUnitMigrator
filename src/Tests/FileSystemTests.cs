@@ -146,4 +146,55 @@ public class FileSystemTests
 
         await Assert.That(result).IsEmpty();
     }
+
+    [Test]
+    public async Task IsCpmEnabled_InDirectoryBuildProps_ReturnsTrue()
+    {
+        using var tempDir = new TempDirectory();
+        await File.WriteAllTextAsync(
+            Path.Combine(tempDir, "Directory.Build.props"),
+            "<Project><PropertyGroup><ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally></PropertyGroup></Project>");
+
+        var result = FileSystem.IsCpmEnabled(tempDir);
+
+        await Assert.That(result).IsTrue();
+    }
+
+    [Test]
+    public async Task IsCpmEnabled_InParentDirectoryBuildProps_ReturnsTrue()
+    {
+        using var tempDir = new TempDirectory();
+        var childDir = Path.Combine(tempDir, "child");
+        Directory.CreateDirectory(childDir);
+        await File.WriteAllTextAsync(
+            Path.Combine(tempDir, "Directory.Build.props"),
+            "<Project><PropertyGroup><ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally></PropertyGroup></Project>");
+
+        var result = FileSystem.IsCpmEnabled(childDir);
+
+        await Assert.That(result).IsTrue();
+    }
+
+    [Test]
+    public async Task IsCpmEnabled_Nowhere_ReturnsFalse()
+    {
+        using var tempDir = new TempDirectory();
+
+        var result = FileSystem.IsCpmEnabled(tempDir);
+
+        await Assert.That(result).IsFalse();
+    }
+
+    [Test]
+    public async Task IsCpmEnabled_SetToFalse_ReturnsFalse()
+    {
+        using var tempDir = new TempDirectory();
+        await File.WriteAllTextAsync(
+            Path.Combine(tempDir, "Directory.Build.props"),
+            "<Project><PropertyGroup><ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally></PropertyGroup></Project>");
+
+        var result = FileSystem.IsCpmEnabled(tempDir);
+
+        await Assert.That(result).IsFalse();
+    }
 }
