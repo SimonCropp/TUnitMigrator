@@ -35,7 +35,7 @@ jobs:
   globalJson:
 {
   "sdk": {
-    "version": "10.0.201"
+    "version": "{SdkVersion}"
   },
   "test": {
     "runner": "Microsoft.Testing.Platform"

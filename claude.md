@@ -1,10 +1,19 @@
-# TUnitMigrator
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Overview
+
+`tunit-migrate` is a .NET global tool (`src/TUnitMigrator/Program.cs`) that migrates a repo's test projects from MSTest/NUnit/xUnit/xUnit v3 to TUnit. Packaged as `PackAsTool` in `TUnitMigrator.csproj`.
 
 ## Build & Test
 
 ```bash
 dotnet build src
 dotnet test --solution src/TUnitMigrator.slnx
+
+# Run a single test (Microsoft.Testing.Platform — note: --treenode-filter, NOT --filter)
+dotnet test --solution src/TUnitMigrator.slnx --treenode-filter "/*/*/MigratorTests/Migration(framework: MSTest)"
 ```
 
 ## Architecture
@@ -36,3 +45,9 @@ dotnet test --solution src/TUnitMigrator.slnx
 - Uses Central Package Management (CPM) — `Directory.Packages.props` is required.
 - Each git repo (identified by `.git` directory) is one migration unit.
 - Follow the patterns in `C:\Code\PackageUpdate` for code style.
+
+## Tests
+
+- **`src/Scenarios/`** — Per-framework fixture repos (`MSTestScenario`, `NUnitScenario`, `XunitScenario`, `XunitV3Scenario`, `TUnitScenario`). `MigratorTests` copies a scenario to a `TempDirectory`, creates a `.git` marker, runs `Migrator.Migrate`, then Verifies the resulting props/csproj/yml/global.json/tests.cs.
+- Uses **Verify** snapshot testing. A failing test writes `*.received.txt`; approve by replacing the matching `*.verified.txt` (DiffEngine typically opens a diff tool).
+- Scenario `.git` dirs are not checked in (nested repos can't be tracked) — tests create them at runtime.

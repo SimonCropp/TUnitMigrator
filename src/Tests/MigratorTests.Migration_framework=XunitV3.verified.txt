@@ -35,7 +35,7 @@ jobs:
   globalJson:
 {
   "sdk": {
-    "version": "10.0.201"
+    "version": "{SdkVersion}"
   },
   "test": {
     "runner": "Microsoft.Testing.Platform"
@@ -43,14 +43,15 @@ jobs:
 }
 ,
   testsCs:
-using System.Threading.Tasks;
+using Xunit;
 
 public class Tests
 {
-    [Test]
-    public async Task SimpleTest()
+    [Fact]
+    public void SimpleTest()
     {
-        await Assert.That(1).IsEqualTo(1);
+        Assert.Equal(1, 1);
     }
 }
+
 }
