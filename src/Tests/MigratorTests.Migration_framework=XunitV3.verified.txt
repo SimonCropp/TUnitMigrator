@@ -43,15 +43,14 @@ jobs:
 }
 ,
   testsCs:
-using Xunit;
+using System.Threading.Tasks;
 
 public class Tests
 {
-    [Fact]
-    public void SimpleTest()
+    [Test]
+    public async Task SimpleTest()
     {
-        Assert.Equal(1, 1);
+        await Assert.That(1).IsEqualTo(1);
     }
 }
-
 }
