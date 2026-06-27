@@ -25,8 +25,7 @@ static class NuGetPackageChecker
 
             var latest = versions
                 .Where(_ => !_.IsPrerelease)
-                .OrderByDescending(_ => _)
-                .FirstOrDefault();
+                .Max();
 
             if (latest != null)
             {
