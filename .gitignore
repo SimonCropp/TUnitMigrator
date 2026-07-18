@@ -7,4 +7,5 @@ obj/
 .idea/
 *.received.*
 nugets/
+TestResults/
 .claude/settings.local.json
