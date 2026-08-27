@@ -15,7 +15,8 @@ static class NuGetPackageChecker
         foreach (var source in sources)
         {
             var (repository, _) = await RepositoryReader.Read(source);
-            var findResource = await repository.GetResourceAsync<FindPackageByIdResource>();
+            var findResource = await repository.GetResourceAsync<FindPackageByIdResource>() ??
+                               throw new($"Could not resolve a {nameof(FindPackageByIdResource)} for source {repository.PackageSource.Source}");
 
             var versions = await findResource.GetAllVersionsAsync(
                 packageId,

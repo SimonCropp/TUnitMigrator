@@ -9,7 +9,8 @@ public static class RepositoryReader
         {
             var repository = factory.GetCoreV3(source);
 
-            var metadataResource = await repository.GetResourceAsync<PackageMetadataResource>();
+            var metadataResource = await repository.GetResourceAsync<PackageMetadataResource>() ??
+                                   throw new($"Could not resolve a {nameof(PackageMetadataResource)} for source {source.Source}");
             cache[source] = value = (repository, metadataResource);
         }
 
