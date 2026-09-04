@@ -9,3 +9,4 @@ obj/
 nugets/
 TestResults/
 .claude/settings.local.json
+*.lnk
