@@ -43,16 +43,14 @@ jobs:
 }
 ,
   testsCs:
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Threading.Tasks;
 
-[TestClass]
 public class Tests
 {
-    [TestMethod]
-    public void SimpleTest()
+    [Test]
+    public async Task SimpleTest()
     {
-        Assert.AreEqual(1, 1);
+        await Assert.That(1).IsEqualTo(1);
     }
 }
-
 }

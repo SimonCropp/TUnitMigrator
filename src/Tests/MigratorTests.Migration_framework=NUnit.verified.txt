@@ -43,16 +43,14 @@ jobs:
 }
 ,
   testsCs:
-using NUnit.Framework;
+using System.Threading.Tasks;
 
-[TestFixture]
 public class Tests
 {
     [Test]
-    public void SimpleTest()
+    public async Task SimpleTest()
     {
-        Assert.That(1, Is.EqualTo(1));
+        await Assert.That(1).IsEqualTo(1);
     }
 }
-
 }
