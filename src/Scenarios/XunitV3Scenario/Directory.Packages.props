@@ -4,8 +4,8 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="xunit.v3" Version="4.0.1" />
-    <PackageVersion Include="coverlet.collector" Version="10.0.1" />
-    <PackageVersion Include="Verify.XunitV3" Version="33.1.5" />
+    <PackageVersion Include="coverlet.collector" Version="10.1.0" />
+    <PackageVersion Include="Verify.XunitV3" Version="33.2.0" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
   </ItemGroup>
 </Project>
