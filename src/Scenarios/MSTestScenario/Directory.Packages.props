@@ -3,9 +3,9 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="MSTest" Version="4.4.1" />
+    <PackageVersion Include="MSTest" Version="4.5.1" />
     <PackageVersion Include="coverlet.collector" Version="10.1.0" />
-    <PackageVersion Include="Verify.MSTest" Version="33.3.2-beta.1" />
+    <PackageVersion Include="Verify.MSTest" Version="33.3.2" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
   </ItemGroup>
 </Project>
